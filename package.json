@@ -1,0 +1,37 @@
+{
+  "name": "@henryavila/claude-stack",
+  "version": "0.1.0",
+  "description": "Optimized AI instruction structure for any project, with stack-specific rules.",
+  "type": "module",
+  "bin": {
+    "claude-stack": "bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "stacks/",
+    "prompts/"
+  ],
+  "scripts": {
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": [
+    "ai",
+    "claude",
+    "rules",
+    "stack",
+    "laravel",
+    "react"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/henryavila/claude-stack.git"
+  },
+  "dependencies": {
+    "inquirer": "^12.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
