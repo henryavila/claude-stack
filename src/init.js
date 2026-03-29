@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { detectStack, detectPackages } from './detect.js';
 import { installRules, PACKAGE_ROOT } from './rules.js';
@@ -7,68 +7,91 @@ import { readManifest, writeManifest } from './manifest.js';
 import { detectRecommendations } from './recommend.js';
 
 /**
+ * Rollback helper — removes files created by init, preserves pre-existing ones.
+ * Exported for testing.
+ */
+export function rollbackInit(writtenFiles, preExisting, paths) {
+  for (const f of writtenFiles) {
+    try { if (existsSync(f)) unlinkSync(f); } catch {}
+  }
+  if (!preExisting.settings && existsSync(paths.settings)) {
+    try { unlinkSync(paths.settings); } catch {}
+  }
+  if (!preExisting.localSettings && existsSync(paths.localSettings)) {
+    try { unlinkSync(paths.localSettings); } catch {}
+  }
+  if (!preExisting.manifest && existsSync(paths.manifest)) {
+    try { unlinkSync(paths.manifest); } catch {}
+  }
+}
+
+/**
  * Non-interactive init — testable core logic.
  * If already installed (manifest exists), delegates to update instead.
  */
 export function initNonInteractive(projectDir) {
-  // Check if already installed — redirect to update
   const existingManifest = readManifest(projectDir);
   if (existingManifest) {
     return { alreadyInstalled: true };
   }
 
-  const stack = detectStack(projectDir);
-  const packages = stack ? detectPackages(projectDir, stack) : [];
+  const writtenFiles = [];
 
-  // Install rules
-  const { files: ruleFiles } = installRules(projectDir, stack, packages);
-
-  // Merge settings
-  if (stack) {
-    const stackSettingsPath = join(PACKAGE_ROOT, 'stacks', stack, 'settings.json');
-    if (existsSync(stackSettingsPath)) {
-      const stackSettings = JSON.parse(readFileSync(stackSettingsPath, 'utf8'));
-      mergeSettings(projectDir, stackSettings);
-    }
-  } else {
-    // Even without stack, create base settings
-    mergeSettings(projectDir, {});
-  }
-
-  // Generate local settings
-  generateLocalSettings(projectDir);
-
-  // Write manifest
-  const filesMap = {};
-  for (const f of ruleFiles) {
-    filesMap[f.path] = { installed_hash: f.hash, source: f.source };
-  }
-  writeManifest(projectDir, {
-    version: getPackageVersion(),
-    stack,
-    packages,
-    files: filesMap,
-  });
-
-  // Add to .gitignore
-  addToGitignore(projectDir);
-
-  // Create memory directory
-  createMemoryDir(projectDir);
-
-  // Check CLAUDE.md
-  const claudeMdExists = existsSync(join(projectDir, 'CLAUDE.md'));
-
-  // Detect recommendations
-  const recommendations = detectRecommendations(projectDir, stack);
-
-  return {
-    stack,
-    packages,
-    rules: ruleFiles,
-    claudeMdExists,
-    recommendations,
+  // Snapshot pre-existing files BEFORE try
+  const paths = {
+    settings: join(projectDir, '.claude', 'settings.json'),
+    localSettings: join(projectDir, '.claude', 'settings.local.json'),
+    manifest: join(projectDir, '.claude-stack', 'manifest.json'),
   };
+  const preExisting = {
+    settings: existsSync(paths.settings),
+    localSettings: existsSync(paths.localSettings),
+    manifest: existsSync(paths.manifest),
+  };
+
+  try {
+    const stack = detectStack(projectDir);
+    const packages = stack ? detectPackages(projectDir, stack) : [];
+
+    const { files: ruleFiles } = installRules(projectDir, stack, packages);
+    for (const f of ruleFiles) {
+      writtenFiles.push(join(projectDir, f.path));
+    }
+
+    if (stack) {
+      const stackSettingsPath = join(PACKAGE_ROOT, 'stacks', stack, 'settings.json');
+      if (existsSync(stackSettingsPath)) {
+        const stackSettings = JSON.parse(readFileSync(stackSettingsPath, 'utf8'));
+        mergeSettings(projectDir, stackSettings);
+      }
+    } else {
+      mergeSettings(projectDir, {});
+    }
+
+    generateLocalSettings(projectDir);
+
+    const filesMap = {};
+    for (const f of ruleFiles) {
+      filesMap[f.path] = { installed_hash: f.hash, source: f.source };
+    }
+    writeManifest(projectDir, {
+      version: getPackageVersion(),
+      stack,
+      packages,
+      files: filesMap,
+    });
+
+    addToGitignore(projectDir);
+    createMemoryDir(projectDir);
+
+    const claudeMdExists = existsSync(join(projectDir, 'CLAUDE.md'));
+    const recommendations = detectRecommendations(projectDir, stack);
+
+    return { stack, packages, rules: ruleFiles, claudeMdExists, recommendations };
+  } catch (error) {
+    rollbackInit(writtenFiles, preExisting, paths);
+    throw error;
+  }
 }
 
 function addToGitignore(projectDir) {
