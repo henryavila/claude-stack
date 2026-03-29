@@ -1,0 +1,66 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+const RECOMMENDATIONS = [
+  // Universal MCPs
+  {
+    id: 'context7',
+    name: 'Context7',
+    description: 'Contextual documentation for libraries (any project)',
+    type: 'mcp',
+    stacks: null, // all stacks
+    detectInstalled: (dir) => false, // TODO: check settings.json for context7 MCP
+    installCmd: null, // MCP install varies by setup
+  },
+  // Stack-specific MCPs
+  {
+    id: 'laravel-boost',
+    name: 'Laravel Boost',
+    description: 'Schema, tinker, docs for Laravel',
+    type: 'mcp',
+    stacks: ['laravel'],
+    detectInstalled: (dir) => false, // TODO: check settings.json
+    installCmd: null,
+  },
+  // Tools
+  {
+    id: 'atomic-skills',
+    name: 'Atomic Skills',
+    description: 'Productivity skills (as-fix, as-hunt, as-prompt, etc.)',
+    type: 'tool',
+    stacks: null,
+    detectInstalled: (dir) => existsSync(join(dir, '.atomic-skills', 'manifest.json')),
+    installCmd: 'npx @henryavila/atomic-skills install',
+  },
+  {
+    id: 'bmad-method',
+    name: 'BMAD Method',
+    description: 'Brainstorming, requirements elicitation, specialized agents',
+    type: 'tool',
+    stacks: null,
+    detectInstalled: (dir) => existsSync(join(dir, '_bmad')),
+    installCmd: 'npx bmad-method install',
+  },
+  {
+    id: 'bmad-doc-architect',
+    name: 'BMAD Doc Architect',
+    description: 'Verified module documentation (includes BMAD Method)',
+    type: 'tool',
+    stacks: null,
+    detectInstalled: (dir) => existsSync(join(dir, '_bmad', 'bmad-doc-architect', 'config.yaml')),
+    installCmd: null, // Requires clone + custom install
+  },
+];
+
+export function detectRecommendations(projectDir, stack) {
+  return RECOMMENDATIONS
+    .filter(rec => rec.stacks === null || rec.stacks.includes(stack))
+    .map(rec => ({
+      id: rec.id,
+      name: rec.name,
+      description: rec.description,
+      type: rec.type,
+      installed: rec.detectInstalled(projectDir),
+      installCmd: rec.installCmd,
+    }));
+}
