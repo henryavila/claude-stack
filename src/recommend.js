@@ -11,6 +11,12 @@ function readSettings(dir) {
   }
 }
 
+function hasPlugin(dir, pluginName) {
+  const settings = readSettings(dir);
+  const plugins = settings.enabledPlugins || {};
+  return Object.keys(plugins).some(k => k.startsWith(pluginName) && plugins[k]);
+}
+
 function hasMcpServer(dir, serverName) {
   const settings = readSettings(dir);
   if (settings.mcpServers?.[serverName]) return true;
@@ -69,6 +75,25 @@ const RECOMMENDATIONS = [
     stacks: null,
     detectInstalled: (dir) => existsSync(join(dir, '_bmad', 'bmad-doc-architect', 'config.yaml')),
     installCmd: null, // Requires clone + custom install
+  },
+  // Plugins (Claude Code plugins — user must install inside Claude Code)
+  {
+    id: 'claude-mem',
+    name: 'claude-mem',
+    description: 'Persistent memory across sessions (search, timeline, auto-capture)',
+    type: 'plugin',
+    stacks: null,
+    detectInstalled: (dir) => hasPlugin(dir, 'claude-mem'),
+    installCmd: '/plugin install claude-mem@thedotmack',
+  },
+  {
+    id: 'superpowers',
+    name: 'Superpowers',
+    description: 'Agentic skills framework (brainstorming, TDD, planning, code review)',
+    type: 'plugin',
+    stacks: null,
+    detectInstalled: (dir) => hasPlugin(dir, 'superpowers'),
+    installCmd: '/plugin install superpowers@claude-plugins-official',
   },
 ];
 

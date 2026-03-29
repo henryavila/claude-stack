@@ -85,6 +85,47 @@ describe('detectRecommendations', () => {
     assert.equal(boost.installed, true);
   });
 
+  it('recommends claude-mem plugin', () => {
+    const recs = detectRecommendations(tmpDir, null);
+    const mem = recs.find(r => r.id === 'claude-mem');
+    assert.ok(mem);
+    assert.equal(mem.type, 'plugin');
+    assert.ok(mem.installCmd.includes('/plugin'));
+  });
+
+  it('recommends superpowers plugin', () => {
+    const recs = detectRecommendations(tmpDir, null);
+    const sp = recs.find(r => r.id === 'superpowers');
+    assert.ok(sp);
+    assert.equal(sp.type, 'plugin');
+  });
+
+  it('detects claude-mem as installed via enabledPlugins', () => {
+    mkdirSync(join(tmpDir, '.claude'), { recursive: true });
+    writeFileSync(join(tmpDir, '.claude', 'settings.json'), JSON.stringify({
+      enabledPlugins: {
+        'claude-mem@thedotmack': true
+      }
+    }));
+
+    const recs = detectRecommendations(tmpDir, null);
+    const mem = recs.find(r => r.id === 'claude-mem');
+    assert.equal(mem.installed, true);
+  });
+
+  it('detects superpowers as installed via enabledPlugins', () => {
+    mkdirSync(join(tmpDir, '.claude'), { recursive: true });
+    writeFileSync(join(tmpDir, '.claude', 'settings.json'), JSON.stringify({
+      enabledPlugins: {
+        'superpowers@claude-plugins-official': true
+      }
+    }));
+
+    const recs = detectRecommendations(tmpDir, null);
+    const sp = recs.find(r => r.id === 'superpowers');
+    assert.equal(sp.installed, true);
+  });
+
   it('detects laravel-boost via enabledPlugins', () => {
     mkdirSync(join(tmpDir, '.claude'), { recursive: true });
     writeFileSync(join(tmpDir, '.claude', 'settings.json'), JSON.stringify({
