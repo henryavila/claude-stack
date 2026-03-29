@@ -7,7 +7,12 @@ const MANIFEST_FILE = 'manifest.json';
 export function readManifest(projectDir) {
   const filePath = join(projectDir, MANIFEST_DIR, MANIFEST_FILE);
   if (!existsSync(filePath)) return null;
-  return JSON.parse(readFileSync(filePath, 'utf8'));
+  try {
+    return JSON.parse(readFileSync(filePath, 'utf8'));
+  } catch {
+    console.warn('Warning: could not parse manifest.json — treating as missing');
+    return null;
+  }
 }
 
 export function writeManifest(projectDir, data) {

@@ -3,22 +3,24 @@ import { join, dirname } from 'node:path';
 import { detectStack, detectPackages } from './detect.js';
 import { readManifest, writeManifest } from './manifest.js';
 import { hashContent } from './hash.js';
-import { getStackConfig, PACKAGE_ROOT } from './rules.js';
-
-const RULES_DEST = '.claude/rules/claude-stack';
+import { getStackConfig, PACKAGE_ROOT, RULES_DEST } from './rules.js';
 
 /**
  * Build map of what the package wants to install now, WITHOUT writing.
+ * Returns { newFiles: Map<destPath, content>, sourceMap: Map<destPath, sourceName> }
  */
 function buildNewFilesMap(stack, packages) {
   const newFiles = new Map();
+  const sourceMap = new Map();
   const config = getStackConfig(stack);
-  if (!config) return newFiles;
+  if (!config) return { newFiles, sourceMap };
 
   for (const file of config.core) {
     const sourcePath = join(PACKAGE_ROOT, 'stacks', stack, 'core', file);
     if (existsSync(sourcePath)) {
-      newFiles.set(`${RULES_DEST}/${file}`, readFileSync(sourcePath, 'utf8'));
+      const destKey = `${RULES_DEST}/${file}`;
+      newFiles.set(destKey, readFileSync(sourcePath, 'utf8'));
+      sourceMap.set(destKey, `${stack}/core/${file}`);
     }
   }
   for (const pkg of packages) {
@@ -26,10 +28,12 @@ function buildNewFilesMap(stack, packages) {
     if (!ruleFile) continue;
     const sourcePath = join(PACKAGE_ROOT, 'stacks', stack, 'packages', ruleFile);
     if (existsSync(sourcePath)) {
-      newFiles.set(`${RULES_DEST}/${ruleFile}`, readFileSync(sourcePath, 'utf8'));
+      const destKey = `${RULES_DEST}/${ruleFile}`;
+      newFiles.set(destKey, readFileSync(sourcePath, 'utf8'));
+      sourceMap.set(destKey, `${stack}/packages/${ruleFile}`);
     }
   }
-  return newFiles;
+  return { newFiles, sourceMap };
 }
 
 /**
@@ -43,7 +47,7 @@ export function updateNonInteractive(projectDir) {
 
   const stack = detectStack(projectDir);
   const packages = stack ? detectPackages(projectDir, stack) : [];
-  const newFiles = buildNewFilesMap(stack, packages);
+  const { newFiles, sourceMap } = buildNewFilesMap(stack, packages);
   const result = { updated: [], kept: [], skipped: [], added: [], conflicts: [], removed: [] };
 
   // 3-hash comparison for existing manifest files
@@ -104,12 +108,12 @@ export function updateNonInteractive(projectDir) {
   }
 
   // Rebuild manifest — preserve old hashes for unresolved conflicts
-  rebuildManifest(projectDir, stack, packages, manifest, result.conflicts);
+  rebuildManifest(projectDir, stack, packages, manifest, result.conflicts, sourceMap);
 
   return result;
 }
 
-function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = []) {
+function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = [], sourceMap = new Map()) {
   const rulesDir = join(projectDir, '.claude', 'rules', 'claude-stack');
   const filesMap = {};
 
@@ -122,9 +126,10 @@ function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = [
         filesMap[filePath] = oldManifest.files[filePath];
       } else {
         const content = readFileSync(join(rulesDir, file), 'utf8');
+        const source = sourceMap.get(filePath) || oldManifest?.files?.[filePath]?.source || `${stack}/${file}`;
         filesMap[filePath] = {
           installed_hash: hashContent(content),
-          source: `${stack}/${file}`,
+          source,
         };
       }
     }

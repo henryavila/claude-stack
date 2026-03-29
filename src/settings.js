@@ -9,7 +9,11 @@ export function mergeSettings(projectDir, stackSettings) {
   let settings = {};
 
   if (existsSync(settingsPath)) {
-    settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
+    try {
+      settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
+    } catch {
+      console.warn('Warning: could not parse settings.json — starting fresh');
+    }
   }
 
   if (!settings.permissions) settings.permissions = {};
@@ -43,7 +47,11 @@ export function generateLocalSettings(projectDir) {
   let settings = {};
 
   if (existsSync(localPath)) {
-    settings = JSON.parse(readFileSync(localPath, 'utf8'));
+    try {
+      settings = JSON.parse(readFileSync(localPath, 'utf8'));
+    } catch {
+      console.warn('Warning: could not parse settings.local.json — starting fresh');
+    }
   }
 
   settings.autoMemoryDirectory = join(projectDir, '.ai', 'memory');

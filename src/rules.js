@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hashContent } from './hash.js';
@@ -6,7 +6,7 @@ import { hashContent } from './hash.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const PACKAGE_ROOT = join(__dirname, '..');
 // Use forward slashes consistently (not path.join) for manifest keys
-const RULES_DEST = '.claude/rules/claude-stack';
+export const RULES_DEST = '.claude/rules/claude-stack';
 
 const STACK_RULES = {
   laravel: {
