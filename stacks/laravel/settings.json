@@ -1,0 +1,8 @@
+{
+  "deny": [
+    "Bash(php artisan migrate:fresh*)",
+    "Bash(php artisan migrate:reset*)",
+    "Bash(php artisan migrate:refresh*)",
+    "Bash(php artisan db:wipe*)"
+  ]
+}
