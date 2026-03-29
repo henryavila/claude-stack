@@ -267,7 +267,7 @@ describe('updateNonInteractive', () => {
     const manifest = readManifest(tmpDir);
 
     assert.equal(manifest.stack, 'laravel');
-    assert.equal(manifest.version, '0.1.0');
+    assert.equal(manifest.version, '0.2.0');
     assert.ok(manifest.updated_at);
   });
 
