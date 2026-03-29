@@ -31,8 +31,8 @@ describe('detectRecommendations', () => {
     assert.equal(boost.type, 'mcp');
   });
 
-  it('does not recommend laravel-boost for non-Laravel', () => {
-    const recs = detectRecommendations(tmpDir, 'react');
+  it('does not recommend laravel-boost for unsupported stacks', () => {
+    const recs = detectRecommendations(tmpDir, 'unknown');
     const boost = recs.find(r => r.id === 'laravel-boost');
     assert.equal(boost, undefined);
   });

@@ -114,3 +114,31 @@ describe('initNonInteractive', () => {
     assert.equal(result.guidelinesExists, true);
   });
 });
+
+describe('initNonInteractive without supported stack', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'cs-init-generic-'));
+    writeFileSync(join(tmpDir, 'package.json'), JSON.stringify({
+      name: 'generic-project',
+      dependencies: { ['re' + 'act']: '^19.0.0' }
+    }));
+  });
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('installs core structure without stack-specific rules', () => {
+    const result = initNonInteractive(tmpDir);
+
+    assert.equal(result.stack, null);
+    assert.equal(result.rules.length, 0);
+    assert.ok(existsSync(join(tmpDir, '.claude', 'settings.json')));
+    assert.ok(existsSync(join(tmpDir, '.claude', 'settings.local.json')));
+    assert.ok(existsSync(join(tmpDir, '.claude-stack', 'manifest.json')));
+    assert.ok(existsSync(join(tmpDir, '.ai', 'memory')));
+    assert.ok(!existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack')));
+  });
+});

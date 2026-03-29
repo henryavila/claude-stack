@@ -83,3 +83,27 @@ describe('uninstallNonInteractive', () => {
     assert.ok(result.removedFiles.length > 0);
   });
 });
+
+describe('uninstallNonInteractive without supported stack', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'cs-uninstall-generic-'));
+    writeFileSync(join(tmpDir, 'package.json'), JSON.stringify({
+      name: 'generic-project'
+    }));
+    initNonInteractive(tmpDir);
+  });
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('removes core settings files that were created by claude-stack', () => {
+    uninstallNonInteractive(tmpDir);
+
+    assert.ok(!existsSync(join(tmpDir, '.claude', 'settings.json')));
+    assert.ok(!existsSync(join(tmpDir, '.claude', 'settings.local.json')));
+    assert.ok(!existsSync(join(tmpDir, '.claude-stack')));
+  });
+});

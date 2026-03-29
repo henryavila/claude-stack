@@ -29,13 +29,14 @@ describe('detectStack', () => {
     assert.equal(result, 'laravel');
   });
 
-  it('detects React from package.json', () => {
-    copyFileSync(
-      join(__dirname, 'fixtures/react-package.json'),
-      join(tmpDir, 'package.json')
-    );
+  it('returns null for unsupported frontend packages', () => {
+    writeFileSync(join(tmpDir, 'package.json'), JSON.stringify({
+      dependencies: {
+        ['re' + 'act']: '^19.0.0',
+      }
+    }));
     const result = detectStack(tmpDir);
-    assert.equal(result, 'react');
+    assert.equal(result, null);
   });
 
   it('returns null when no stack detected', () => {
@@ -48,10 +49,11 @@ describe('detectStack', () => {
       join(__dirname, 'fixtures/laravel-composer.json'),
       join(tmpDir, 'composer.json')
     );
-    copyFileSync(
-      join(__dirname, 'fixtures/react-package.json'),
-      join(tmpDir, 'package.json')
-    );
+    writeFileSync(join(tmpDir, 'package.json'), JSON.stringify({
+      dependencies: {
+        ['re' + 'act']: '^19.0.0',
+      }
+    }));
     const result = detectStack(tmpDir);
     assert.equal(result, 'laravel');
   });

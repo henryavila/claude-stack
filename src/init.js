@@ -60,15 +60,14 @@ export function initNonInteractive(projectDir) {
       writtenFiles.push(join(projectDir, f.path));
     }
 
+    let stackSettings = {};
     if (stack) {
       const stackSettingsPath = join(PACKAGE_ROOT, 'stacks', stack, 'settings.json');
       if (existsSync(stackSettingsPath)) {
-        const stackSettings = JSON.parse(readFileSync(stackSettingsPath, 'utf8'));
-        mergeSettings(projectDir, stackSettings);
+        stackSettings = JSON.parse(readFileSync(stackSettingsPath, 'utf8'));
       }
-    } else {
-      mergeSettings(projectDir, {});
     }
+    mergeSettings(projectDir, stackSettings);
 
     generateLocalSettings(projectDir);
 
@@ -80,6 +79,10 @@ export function initNonInteractive(projectDir) {
       version: getPackageVersion(),
       stack,
       packages,
+      meta: {
+        createdSettings: !preExisting.settings,
+        createdLocalSettings: !preExisting.localSettings,
+      },
       files: filesMap,
     });
 
@@ -145,7 +148,7 @@ export async function init(projectDir) {
       console.log(`  Packages detectados: ${result.packages.join(', ')}`);
     }
   } else {
-    console.log('  Nenhuma stack detectada (instalando estrutura base).');
+    console.log('  Nenhuma stack suportada detectada (instalando core).');
   }
 
   // Display installed rules

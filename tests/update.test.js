@@ -403,4 +403,29 @@ describe('updateNonInteractive', () => {
     assert.ok(result.conflicts[0].localContent);
     assert.ok(result.conflicts[0].newContent);
   });
+
+  it('preserves manifest metadata used by uninstall', async () => {
+    writeFileSync(join(tmpDir, 'package.json'), JSON.stringify({
+      name: 'generic-project'
+    }));
+
+    writeManifest(tmpDir, {
+      version: '0.1.0',
+      stack: null,
+      packages: [],
+      meta: {
+        createdSettings: true,
+        createdLocalSettings: true,
+      },
+      files: {}
+    });
+
+    await updateNonInteractive(tmpDir);
+    const manifest = readManifest(tmpDir);
+
+    assert.deepEqual(manifest.meta, {
+      createdSettings: true,
+      createdLocalSettings: true,
+    });
+  });
 });

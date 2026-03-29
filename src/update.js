@@ -166,6 +166,7 @@ function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = [
     version: pkg.version,
     stack,
     packages,
+    meta: oldManifest?.meta,
     installed_at: oldManifest?.installed_at,
     files: filesMap,
   });
