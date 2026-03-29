@@ -29,7 +29,7 @@ describe('CLI e2e', () => {
   });
 
   it('init creates expected structure', () => {
-    execSync(`node ${CLI} init`, { cwd: tmpDir, encoding: 'utf8' });
+    execSync(`node ${CLI} init --non-interactive`, { cwd: tmpDir, encoding: 'utf8' });
 
     assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'testing.md')));
     assert.ok(existsSync(join(tmpDir, '.claude', 'settings.json')));

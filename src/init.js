@@ -5,6 +5,8 @@ import { installRules, PACKAGE_ROOT } from './rules.js';
 import { mergeSettings, generateLocalSettings } from './settings.js';
 import { readManifest, writeManifest } from './manifest.js';
 import { detectRecommendations } from './recommend.js';
+import { promptRecommendations } from './prompts.js';
+import { execSync } from 'node:child_process';
 
 /**
  * Rollback helper — removes files created by init, preserves pre-existing ones.
@@ -168,8 +170,28 @@ export async function init(projectDir) {
   }
 
   // Recommendations
+  const nonInteractive = process.argv.includes('--non-interactive') || process.env.CI;
   const notInstalled = result.recommendations.filter(r => !r.installed);
-  if (notInstalled.length > 0) {
+
+  if (notInstalled.length > 0 && !nonInteractive) {
+    const selected = await promptRecommendations(result.recommendations);
+
+    for (const rec of selected) {
+      if (rec.type === 'tool' && rec.installCmd) {
+        console.log(`\n  Installing ${rec.name}...`);
+        try {
+          execSync(rec.installCmd, { cwd: projectDir, stdio: 'inherit' });
+          console.log(`  ✓ ${rec.name} installed`);
+        } catch {
+          console.log(`  ✗ ${rec.name} failed — run manually: ${rec.installCmd}`);
+        }
+      } else if (rec.type === 'plugin') {
+        console.log(`\n  📋 ${rec.name}: run inside Claude Code → ${rec.installCmd}`);
+      } else if (rec.type === 'mcp') {
+        console.log(`\n  📋 ${rec.name}: configure MCP server in your Claude Code settings`);
+      }
+    }
+  } else if (notInstalled.length > 0) {
     console.log('\n  💡 Ferramentas recomendadas:\n');
     for (const rec of notInstalled) {
       const cmd = rec.installCmd ? ` → ${rec.installCmd}` : '';
