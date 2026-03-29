@@ -1,6 +1,6 @@
 # Claude Stack
 
-NPM package that installs optimized AI rules and settings per stack (Laravel, React, etc.) for Claude Code.
+NPM package that installs a structured Claude Code setup for any project, with optional stack modules. Today the only supported stack module is Laravel.
 
 ## Commands
 
@@ -17,10 +17,10 @@ npm test                                 # Run tests
 ```
 bin/cli.js          — CLI entry point (init | update | status | uninstall)
 src/
-  detect.js         — Stack detection from project files (composer.json, package.json)
-  recommend.js      — Recommends core + optional package rules, MCPs, and plugins
+  detect.js         — Detects supported stack modules from project files
+  recommend.js      — Recommends optional MCPs, plugins, and tools
   rules.js          — Copies rule .md files into .claude/rules/ with frontmatter
-  settings.js       — Merges stack settings.json into .claude/settings.json (never replaces)
+  settings.js       — Creates/merges .claude/settings.json and .claude/settings.local.json
   manifest.js       — Tracks installed rules with 3-hash conflict handling
   hash.js           — SHA-256 hashing for manifest conflict detection
   init.js           — Orchestrates full init flow with rollback safety
@@ -29,7 +29,7 @@ src/
   status.js         — Shows installation state and rule health
   uninstall.js      — Clean removal preserving CLAUDE.md and memory
 stacks/
-  laravel/          — Laravel stack: core rules, package rules, settings.json
+  laravel/          — First supported stack module: rules + settings
 prompts/
   analyze-claude-md.md     — Prompt for analyzing existing CLAUDE.md
   generate-claude-md.md    — Prompt for generating optimized CLAUDE.md
@@ -39,6 +39,7 @@ tests/              — Node.js test runner tests for all modules
 
 ## Design Decisions
 
+- Core setup is universal; stack modules are optional
 - Rules use `paths:` frontmatter for conditional loading by Claude Code
 - Settings.json: deep merge with existing (NEVER replace)
 - Manifest uses 3-hash system (original, installed, current) for conflict detection

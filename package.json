@@ -1,7 +1,7 @@
 {
   "name": "@henryavila/claude-stack",
   "version": "0.2.0",
-  "description": "Optimized AI instruction structure for any project, with stack-specific rules.",
+  "description": "Structured Claude Code setup for any project, with optional stack modules.",
   "type": "module",
   "bin": {
     "claude-stack": "bin/cli.js"
@@ -18,10 +18,11 @@
   "keywords": [
     "ai",
     "claude",
+    "claude-code",
+    "instructions",
     "rules",
     "stack",
-    "laravel",
-    "react"
+    "laravel"
   ],
   "license": "MIT",
   "repository": {
