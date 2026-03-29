@@ -1,5 +1,25 @@
-import { existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+
+function readSettings(dir) {
+  const settingsPath = join(dir, '.claude', 'settings.json');
+  if (!existsSync(settingsPath)) return {};
+  try {
+    return JSON.parse(readFileSync(settingsPath, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+function hasMcpServer(dir, serverName) {
+  const settings = readSettings(dir);
+  if (settings.mcpServers?.[serverName]) return true;
+  const allows = settings.permissions?.allow || [];
+  if (allows.some(a => a.includes(`mcp__${serverName}`))) return true;
+  const plugins = settings.enabledPlugins || {};
+  if (Object.keys(plugins).some(k => k.startsWith(serverName) && plugins[k])) return true;
+  return false;
+}
 
 const RECOMMENDATIONS = [
   // Universal MCPs
@@ -9,7 +29,7 @@ const RECOMMENDATIONS = [
     description: 'Contextual documentation for libraries (any project)',
     type: 'mcp',
     stacks: null, // all stacks
-    detectInstalled: (dir) => false, // TODO: check settings.json for context7 MCP
+    detectInstalled: (dir) => hasMcpServer(dir, 'context7'),
     installCmd: null, // MCP install varies by setup
   },
   // Stack-specific MCPs
@@ -19,7 +39,7 @@ const RECOMMENDATIONS = [
     description: 'Schema, tinker, docs for Laravel',
     type: 'mcp',
     stacks: ['laravel'],
-    detectInstalled: (dir) => false, // TODO: check settings.json
+    detectInstalled: (dir) => hasMcpServer(dir, 'laravel-boost'),
     installCmd: null,
   },
   // Tools

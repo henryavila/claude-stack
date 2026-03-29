@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { detectRecommendations } from '../src/recommend.js';
@@ -57,5 +57,44 @@ describe('detectRecommendations', () => {
     const recs = detectRecommendations(tmpDir, null);
     const doc = recs.find(r => r.id === 'bmad-doc-architect');
     assert.equal(doc.installed, true);
+  });
+
+  it('detects context7 as installed from settings.json', () => {
+    mkdirSync(join(tmpDir, '.claude'), { recursive: true });
+    writeFileSync(join(tmpDir, '.claude', 'settings.json'), JSON.stringify({
+      mcpServers: {
+        context7: { command: 'npx', args: ['@context7/mcp'] }
+      }
+    }));
+
+    const recs = detectRecommendations(tmpDir, null);
+    const context7 = recs.find(r => r.id === 'context7');
+    assert.equal(context7.installed, true);
+  });
+
+  it('detects laravel-boost as installed from settings.json', () => {
+    mkdirSync(join(tmpDir, '.claude'), { recursive: true });
+    writeFileSync(join(tmpDir, '.claude', 'settings.json'), JSON.stringify({
+      permissions: {
+        allow: ['mcp__laravel-boost__search-docs']
+      }
+    }));
+
+    const recs = detectRecommendations(tmpDir, 'laravel');
+    const boost = recs.find(r => r.id === 'laravel-boost');
+    assert.equal(boost.installed, true);
+  });
+
+  it('detects laravel-boost via enabledPlugins', () => {
+    mkdirSync(join(tmpDir, '.claude'), { recursive: true });
+    writeFileSync(join(tmpDir, '.claude', 'settings.json'), JSON.stringify({
+      enabledPlugins: {
+        'laravel-boost@claude-plugins-official': true
+      }
+    }));
+
+    const recs = detectRecommendations(tmpDir, 'laravel');
+    const boost = recs.find(r => r.id === 'laravel-boost');
+    assert.equal(boost.installed, true);
   });
 });
