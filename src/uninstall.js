@@ -36,6 +36,7 @@ export function uninstallNonInteractive(projectDir) {
       const stackSettingsPath = join(PACKAGE_ROOT, 'stacks', manifest.stack, 'settings.json');
       if (existsSync(stackSettingsPath)) {
         const stackSettings = JSON.parse(readFileSync(stackSettingsPath, 'utf8'));
+        // Stack source uses flat `deny` key; installed settings uses `permissions.deny`
         const denyToRemove = new Set(stackSettings.deny || []);
 
         if (settings.permissions?.deny) {

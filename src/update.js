@@ -4,6 +4,7 @@ import { detectStack, detectPackages } from './detect.js';
 import { readManifest, writeManifest } from './manifest.js';
 import { hashContent } from './hash.js';
 import { getStackConfig, PACKAGE_ROOT, RULES_DEST } from './rules.js';
+import { promptConflict } from './prompts.js';
 
 /**
  * Build map of what the package wants to install now, WITHOUT writing.
@@ -165,11 +166,10 @@ function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = [
     version: pkg.version,
     stack,
     packages,
+    installed_at: oldManifest?.installed_at,
     files: filesMap,
   });
 }
-
-import { promptConflict } from './prompts.js';
 
 /**
  * Interactive update.
@@ -199,7 +199,6 @@ export async function update(projectDir) {
     for (const f of result.removed) console.log(`  ✗ ${f} (removed)`);
     for (const c of result.conflicts) console.log(`  ⚠ ${c.filePath} (CONFLICT — skipped)`);
 
-    const resolved = result.updated.length + result.kept.length;
     console.log(`\n  Done. ${result.updated.length} updated, ${result.added.length} added, ${result.kept.length} kept, ${result.removed.length} removed.`);
     if (result.conflicts.length > 0) {
       console.log(`  ${result.conflicts.length} unresolved conflict(s) — re-run update to resolve.\n`);
