@@ -2,7 +2,13 @@
 
 ## O que é
 
-Package NPM com rules e settings de IA por stack (Laravel, React, etc.). Instala via `npx @henryavila/claude-stack init`. Detecta o projeto, monta combinação de rules path-scoped para `.claude/rules/`.
+Package NPM com setup estruturado do Claude Code para qualquer projeto, com módulos opcionais por stack. Instala via `npx @henryavila/claude-stack init`.
+
+Contrato atual:
+- `core` é universal e roda em qualquer projeto
+- somente stacks suportadas recebem regras e settings específicos
+- hoje, a única stack suportada é Laravel
+- projetos sem stack suportada recebem apenas o `core`
 
 ## Ecossistema
 
@@ -17,6 +23,10 @@ Posição no ecossistema:
 ## Design e decisões
 
 Tudo o que foi decidido na sessão de planejamento: [design.md](design.md)
+
+Aprendizado recente:
+- detecção de stack deve responder apenas o que o pacote suporta aplicar agora, não qualquer tecnologia encontrada no projeto
+- `uninstall` precisa saber quais arquivos do `core` foram criados pelo installer para removê-los corretamente em installs sem stack suportada
 
 ## Referências
 

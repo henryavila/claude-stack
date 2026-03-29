@@ -15,9 +15,9 @@ npx @henryavila/claude-stack init
 
 → Cria estrutura otimizada (.claude/rules/, settings, guidelines.md)
 → CLAUDE.md: se não existe → gera via prompt; se existe → analisa e propõe melhorias
-→ Detecta stack (composer.json → Laravel, package.json → React)
-→ Instala rules path-scoped da stack em .claude/rules/claude-stack/
-→ Configura settings (deny rules por stack + MCPs)
+→ Detecta stack suportada (hoje: composer.json → Laravel)
+→ Instala rules path-scoped apenas se houver stack suportada
+→ Configura core universal + settings específicos da stack, quando existirem
 → Recomenda ferramentas (MCPs, atomic-skills, bmad-doc-architect) — instala se aceito
 ```
 
@@ -49,7 +49,7 @@ npx @henryavila/claude-stack init
 | Arquivo | Stack detectada |
 |---------|----------------|
 | `composer.json` com `laravel/framework` | Laravel |
-| `package.json` com `react` | React (futuro) |
+| qualquer outro caso | `null` (core only) |
 
 ### Packages (Laravel)
 | Package no composer.json | Rule instalado |
@@ -181,12 +181,14 @@ Rules a CRIAR:
 ## Decisões Tomadas
 
 - **CORE é estrutura otimizada de instruções, stack é extensão** — qualquer projeto se beneficia do core
+- **Detecção de stack significa stack suportada** — encontrar uma tecnologia no projeto não implica módulo instalável
 - Stack rules são concern SEPARADO de skills → repos separados
 - Múltiplas stacks num SÓ package → escolha na instalação
 - Reusar CONCEITO do atomic-skills (installer interativo, conflict handling, manifest) — adaptar código, não importar como dependência
 - CLAUDE.md gerado por IA via prompt, NÃO template estático
 - Package-specific rules auto-detectados do composer.json/package.json
 - Settings.json: MERGE com existente, não replace
+- Manifest guarda metadado do que o core criou para permitir uninstall correto em projetos sem stack suportada
 - Rules instalados em `.claude/rules/claude-stack/` (subdir dedicado, não raiz)
 - **NÃO existe `as-init-project` no atomic-skills** — claude-stack é dono de toda a experiência de init
 - Prompts de CLAUDE.md ficam no claude-stack (`prompts/`), não como skill
