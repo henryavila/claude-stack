@@ -1,0 +1,9 @@
+{
+  "name": "test/laravel-app",
+  "require": {
+    "php": "^8.3",
+    "laravel/framework": "^12.0",
+    "filament/filament": "^4.0",
+    "henryavila/email-tracking": "^2.0"
+  }
+}
