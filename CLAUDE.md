@@ -1,21 +1,42 @@
 # Claude Stack
 
-NPM package que instala rules e settings de IA por stack (Laravel, React, etc.) para Claude Code.
+NPM package that installs optimized AI rules and settings per stack (Laravel, React, etc.) for Claude Code.
 
-## Comandos
+## Commands
 
 ```bash
-node src/cli.js init       # Detecta stack, instala rules + settings
-node src/cli.js update     # Atualiza rules com conflict handling
-npm test                   # Testes
+npx @henryavila/claude-stack init      # Detect stack, install rules + settings
+npx @henryavila/claude-stack update    # Update rules with conflict handling
+npm test                               # Run tests
 ```
 
-## Regras
+## Project Structure
 
-- Reusar pattern do atomic-skills: installer interativo, manifest, 3-hash conflict handling
-- Rules usam `paths:` frontmatter para carregamento condicional
-- Settings.json: merge com existente (NUNCA replace)
-- CLAUDE.md gerado por prompt otimizado para IA (NÃO template estático)
+```
+bin/cli.js          — CLI entry point (init | update)
+src/
+  detect.js         — Stack detection from project files (composer.json, package.json)
+  recommend.js      — Recommends core + optional package rules for detected stack
+  rules.js          — Copies rule .md files into .claude/rules/ with frontmatter
+  settings.js       — Merges stack settings.json into .claude/settings.json (never replaces)
+  manifest.js       — Tracks installed rules with 3-hash conflict handling
+  hash.js           — SHA-256 hashing for manifest conflict detection
+  init.js           — Orchestrates full init flow (detect -> recommend -> install)
+  update.js         — Updates rules, handles conflicts (ours/theirs/skip)
+stacks/
+  laravel/          — Laravel stack: core rules, package rules, settings.json
+prompts/
+  analyze-claude-md.md   — Prompt for analyzing existing CLAUDE.md
+  generate-claude-md.md  — Prompt for generating optimized CLAUDE.md
+tests/              — Node.js test runner tests for all modules
+```
+
+## Design Decisions
+
+- Rules use `paths:` frontmatter for conditional loading by Claude Code
+- Settings.json: deep merge with existing (NEVER replace)
+- Manifest uses 3-hash system (original, installed, current) for conflict detection
+- CLAUDE.md generated via AI-optimized prompt (NOT static template)
 
 ## Memória
 
