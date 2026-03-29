@@ -38,8 +38,11 @@ function buildNewFilesMap(stack, packages) {
 
 /**
  * Non-interactive update — 3-hash conflict resolution.
+ * @param {string} projectDir
+ * @param {object} options
+ * @param {function} [options.onConflict] - async (filePath, localContent, newContent) => 'keep'|'overwrite'|'skip'
  */
-export function updateNonInteractive(projectDir) {
+export async function updateNonInteractive(projectDir, options = {}) {
   const manifest = readManifest(projectDir);
   if (!manifest) {
     throw new Error('No manifest found. Run `claude-stack init` first.');
@@ -92,8 +95,8 @@ export function updateNonInteractive(projectDir) {
     } else if (!localUnchanged && packageUnchanged) {
       result.kept.push(filePath);
     } else {
-      // Both changed — conflict (interactive mode would prompt user)
-      result.conflicts.push(filePath);
+      // Both changed — conflict
+      result.conflicts.push({ filePath, localContent: readFileSync(absPath, 'utf8'), newContent });
     }
 
     newFiles.delete(filePath);
@@ -107,8 +110,30 @@ export function updateNonInteractive(projectDir) {
     result.added.push(filePath);
   }
 
-  // Rebuild manifest — preserve old hashes for unresolved conflicts
-  rebuildManifest(projectDir, stack, packages, manifest, result.conflicts, sourceMap);
+  // Resolve conflicts if handler provided
+  if (options.onConflict) {
+    for (const conflict of result.conflicts) {
+      const action = await options.onConflict(conflict.filePath, conflict.localContent, conflict.newContent);
+      if (action === 'overwrite') {
+        writeFileSync(join(projectDir, conflict.filePath), conflict.newContent, 'utf8');
+        result.updated.push(conflict.filePath);
+      } else if (action === 'keep') {
+        result.kept.push(conflict.filePath);
+      }
+      // 'skip' — leave as conflict
+    }
+    // Remove resolved conflicts
+    result.conflicts = result.conflicts.filter(c =>
+      !result.updated.includes(c.filePath) && !result.kept.includes(c.filePath)
+    );
+  }
+
+  // Extract filePath strings for rebuildManifest (it expects string[], not object[])
+  const conflictPaths = result.conflicts.map(c => c.filePath);
+
+  rebuildManifest(projectDir, stack, packages, manifest, conflictPaths, sourceMap);
+
+  result.conflictPaths = conflictPaths;
 
   return result;
 }
@@ -144,6 +169,8 @@ function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = [
   });
 }
 
+import { promptConflict } from './prompts.js';
+
 /**
  * Interactive update.
  */
@@ -151,16 +178,34 @@ export async function update(projectDir) {
   console.log('\n  📦 Claude Stack — Updating rules...\n');
 
   try {
-    const result = updateNonInteractive(projectDir);
+    const result = await updateNonInteractive(projectDir, {
+      onConflict: async (filePath, localContent, newContent) => {
+        let action = await promptConflict(filePath);
+        while (action === 'diff') {
+          console.log('\n  --- Local (on disk) ---');
+          console.log(localContent.slice(0, 500) + (localContent.length > 500 ? '\n  ...(truncated)' : ''));
+          console.log('\n  --- Package (new) ---');
+          console.log(newContent.slice(0, 500) + (newContent.length > 500 ? '\n  ...(truncated)' : ''));
+          action = await promptConflict(filePath);
+        }
+        return action;
+      }
+    });
 
     for (const f of result.updated) console.log(`  ↑ ${f} (updated)`);
     for (const f of result.added) console.log(`  + ${f} (added)`);
     for (const f of result.kept) console.log(`  ≡ ${f} (local edits kept)`);
     for (const f of result.skipped) console.log(`  · ${f} (unchanged)`);
     for (const f of result.removed) console.log(`  ✗ ${f} (removed)`);
-    for (const f of result.conflicts) console.log(`  ⚠ ${f} (CONFLICT — both changed)`);
+    for (const c of result.conflicts) console.log(`  ⚠ ${c.filePath} (CONFLICT — skipped)`);
 
-    console.log(`\n  Done. ${result.updated.length} updated, ${result.added.length} added, ${result.kept.length} kept, ${result.removed.length} removed.\n`);
+    const resolved = result.updated.length + result.kept.length;
+    console.log(`\n  Done. ${result.updated.length} updated, ${result.added.length} added, ${result.kept.length} kept, ${result.removed.length} removed.`);
+    if (result.conflicts.length > 0) {
+      console.log(`  ${result.conflicts.length} unresolved conflict(s) — re-run update to resolve.\n`);
+    } else {
+      console.log('');
+    }
   } catch (e) {
     console.error(`  Error: ${e.message}\n`);
   }

@@ -21,7 +21,7 @@ describe('updateNonInteractive', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('overwrites silently when only package changed', () => {
+  it('overwrites silently when only package changed', async () => {
     const oldContent = '# Old testing rules';
     const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
     mkdirSync(rulesDir, { recursive: true });
@@ -39,14 +39,14 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    const result = updateNonInteractive(tmpDir);
+    const result = await updateNonInteractive(tmpDir);
     const newContent = readFileSync(join(rulesDir, 'testing.md'), 'utf8');
 
     assert.notEqual(newContent, oldContent);
     assert.ok(result.updated.length > 0 || result.added.length > 0);
   });
 
-  it('keeps local edits when package unchanged', () => {
+  it('keeps local edits when package unchanged', async () => {
     const originalContent = readFileSync(
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
@@ -68,14 +68,14 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    const result = updateNonInteractive(tmpDir);
+    const result = await updateNonInteractive(tmpDir);
     const afterUpdate = readFileSync(join(rulesDir, 'testing.md'), 'utf8');
 
     assert.ok(afterUpdate.includes('# My custom addition'));
     assert.ok(result.kept.includes('.claude/rules/claude-stack/testing.md'));
   });
 
-  it('skips unchanged files', () => {
+  it('skips unchanged files', async () => {
     const content = readFileSync(
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
@@ -96,15 +96,15 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    const result = updateNonInteractive(tmpDir);
+    const result = await updateNonInteractive(tmpDir);
     assert.ok(result.skipped.includes('.claude/rules/claude-stack/testing.md'));
   });
 
-  it('throws when no manifest exists', () => {
-    assert.throws(() => updateNonInteractive(tmpDir), /No manifest found/);
+  it('throws when no manifest exists', async () => {
+    await assert.rejects(async () => await updateNonInteractive(tmpDir), /No manifest found/);
   });
 
-  it('removes orphaned files', () => {
+  it('removes orphaned files', async () => {
     const content = '# Old rule that no longer exists';
     const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
     mkdirSync(rulesDir, { recursive: true });
@@ -122,19 +122,17 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    const result = updateNonInteractive(tmpDir);
+    const result = await updateNonInteractive(tmpDir);
     assert.ok(!existsSync(join(rulesDir, 'obsolete.md')));
     assert.ok(result.removed.includes('.claude/rules/claude-stack/obsolete.md'));
   });
 
-  it('reinstalls locally deleted files', () => {
-    // File in manifest but deleted from disk
+  it('reinstalls locally deleted files', async () => {
     const content = readFileSync(
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
     const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
     mkdirSync(rulesDir, { recursive: true });
-    // Don't write testing.md to disk — simulates user deletion
 
     writeManifest(tmpDir, {
       version: '0.1.0',
@@ -148,14 +146,14 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    const result = updateNonInteractive(tmpDir);
+    const result = await updateNonInteractive(tmpDir);
     assert.ok(existsSync(join(rulesDir, 'testing.md')));
     assert.ok(result.added.includes('.claude/rules/claude-stack/testing.md'));
   });
 
   // ── Additional edge case tests ──
 
-  it('detects conflict when both local and package changed', () => {
+  it('detects conflict when both local and package changed', async () => {
     const originalContent = '# Original content v1';
     const locallyEdited = '# Original content v1\n# User changes';
 
@@ -175,14 +173,14 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    const result = updateNonInteractive(tmpDir);
-    assert.ok(result.conflicts.includes('.claude/rules/claude-stack/testing.md'));
+    const result = await updateNonInteractive(tmpDir);
+    assert.ok(result.conflictPaths.includes('.claude/rules/claude-stack/testing.md'));
     // File on disk should remain untouched (user's version preserved)
     const afterUpdate = readFileSync(join(rulesDir, 'testing.md'), 'utf8');
     assert.equal(afterUpdate, locallyEdited);
   });
 
-  it('preserves installed_hash in manifest for unresolved conflicts', () => {
+  it('preserves installed_hash in manifest for unresolved conflicts', async () => {
     const originalContent = '# Original content v1';
     const locallyEdited = '# Original content v1\n# User changes';
     const originalHash = hashContent(originalContent);
@@ -203,17 +201,15 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    updateNonInteractive(tmpDir);
+    await updateNonInteractive(tmpDir);
     const manifest = readManifest(tmpDir);
-    // Old installed_hash should be preserved so conflict is re-detected
     assert.equal(
       manifest.files['.claude/rules/claude-stack/testing.md'].installed_hash,
       originalHash
     );
   });
 
-  it('adds newly detected package rules', () => {
-    // Start with only core files in manifest (no packages)
+  it('adds newly detected package rules', async () => {
     const testingContent = readFileSync(
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
@@ -234,7 +230,6 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    // Now add filament to composer.json so it gets detected
     writeFileSync(join(tmpDir, 'composer.json'), JSON.stringify({
       require: {
         'laravel/framework': '^12.0',
@@ -242,12 +237,12 @@ describe('updateNonInteractive', () => {
       }
     }));
 
-    const result = updateNonInteractive(tmpDir);
+    const result = await updateNonInteractive(tmpDir);
     assert.ok(result.added.includes('.claude/rules/claude-stack/filament-v4.md'));
     assert.ok(existsSync(join(rulesDir, 'filament-v4.md')));
   });
 
-  it('updates manifest with correct version and stack after update', () => {
+  it('updates manifest with correct version and stack after update', async () => {
     const content = readFileSync(
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
@@ -268,7 +263,7 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    updateNonInteractive(tmpDir);
+    await updateNonInteractive(tmpDir);
     const manifest = readManifest(tmpDir);
 
     assert.equal(manifest.stack, 'laravel');
@@ -276,7 +271,7 @@ describe('updateNonInteractive', () => {
     assert.ok(manifest.updated_at);
   });
 
-  it('handles multiple files in different states simultaneously', () => {
+  it('handles multiple files in different states simultaneously', async () => {
     const testingContent = readFileSync(
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
@@ -287,12 +282,9 @@ describe('updateNonInteractive', () => {
     const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
     mkdirSync(rulesDir, { recursive: true });
 
-    // testing.md: unchanged (skip)
     writeFileSync(join(rulesDir, 'testing.md'), testingContent);
-    // services.md: locally edited (keep)
     const editedServices = servicesContent + '\n# My edit';
     writeFileSync(join(rulesDir, 'services.md'), editedServices);
-    // obsolete.md: orphan (remove)
     writeFileSync(join(rulesDir, 'obsolete.md'), '# Obsolete');
 
     writeManifest(tmpDir, {
@@ -315,17 +307,16 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    const result = updateNonInteractive(tmpDir);
+    const result = await updateNonInteractive(tmpDir);
 
     assert.ok(result.skipped.includes('.claude/rules/claude-stack/testing.md'));
     assert.ok(result.kept.includes('.claude/rules/claude-stack/services.md'));
     assert.ok(result.removed.includes('.claude/rules/claude-stack/obsolete.md'));
-    // database.md and code-quality.md are new (not in old manifest)
     assert.ok(result.added.includes('.claude/rules/claude-stack/database.md'));
     assert.ok(result.added.includes('.claude/rules/claude-stack/code-quality.md'));
   });
 
-  it('handles empty manifest files map gracefully', () => {
+  it('handles empty manifest files map gracefully', async () => {
     writeManifest(tmpDir, {
       version: '0.1.0',
       stack: 'laravel',
@@ -333,16 +324,14 @@ describe('updateNonInteractive', () => {
       files: {}
     });
 
-    const result = updateNonInteractive(tmpDir);
+    const result = await updateNonInteractive(tmpDir);
 
-    // All core files should be added as new
     assert.ok(result.added.length >= 4);
     assert.ok(result.updated.length === 0);
     assert.ok(result.removed.length === 0);
   });
 
-  it('removes orphan even when file already deleted from disk', () => {
-    // File is in manifest but doesn't exist on disk AND is no longer in package
+  it('removes orphan even when file already deleted from disk', async () => {
     writeManifest(tmpDir, {
       version: '0.1.0',
       stack: 'laravel',
@@ -355,11 +344,11 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    const result = updateNonInteractive(tmpDir);
+    const result = await updateNonInteractive(tmpDir);
     assert.ok(result.removed.includes('.claude/rules/claude-stack/gone.md'));
   });
 
-  it('manifest includes newly added package files after update', () => {
+  it('manifest includes newly added package files after update', async () => {
     writeFileSync(join(tmpDir, 'composer.json'), JSON.stringify({
       require: {
         'laravel/framework': '^12.0',
@@ -387,11 +376,31 @@ describe('updateNonInteractive', () => {
       }
     });
 
-    updateNonInteractive(tmpDir);
+    await updateNonInteractive(tmpDir);
     const manifest = readManifest(tmpDir);
 
     assert.ok(manifest.files['.claude/rules/claude-stack/mongodb.md']);
     assert.ok(manifest.files['.claude/rules/claude-stack/mongodb.md'].installed_hash);
     assert.deepEqual(manifest.packages, ['mongodb']);
+  });
+
+  // ── New Task 6 test: conflict object shape ──
+
+  it('returns conflict objects with content when both changed', async () => {
+    const originalContent = '# Original content v1';
+    const locallyEdited = '# Original content v1\n# User changes';
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    mkdirSync(rulesDir, { recursive: true });
+    writeFileSync(join(rulesDir, 'testing.md'), locallyEdited);
+    writeManifest(tmpDir, {
+      version: '0.1.0', stack: 'laravel', packages: [],
+      files: { '.claude/rules/claude-stack/testing.md': { installed_hash: hashContent(originalContent), source: 'laravel/core/testing.md' } }
+    });
+
+    const result = await updateNonInteractive(tmpDir);
+    assert.ok(result.conflicts.length > 0);
+    assert.ok(result.conflicts[0].filePath);
+    assert.ok(result.conflicts[0].localContent);
+    assert.ok(result.conflicts[0].newContent);
   });
 });
