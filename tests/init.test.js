@@ -75,4 +75,31 @@ describe('initNonInteractive', () => {
     const result = initNonInteractive(tmpDir);
     assert.equal(result.alreadyInstalled, true);
   });
+
+  it('adds .claude-stack/ and settings.local.json to .gitignore', () => {
+    initNonInteractive(tmpDir);
+
+    const gitignorePath = join(tmpDir, '.gitignore');
+    assert.ok(existsSync(gitignorePath));
+    const content = readFileSync(gitignorePath, 'utf8');
+    assert.ok(content.includes('.claude-stack/'));
+    assert.ok(content.includes('.claude/settings.local.json'));
+  });
+
+  it('does not duplicate gitignore entries on re-run', () => {
+    // Manually create gitignore with entry already present
+    writeFileSync(join(tmpDir, '.gitignore'), '.claude-stack/\n');
+    // Remove manifest so init runs fresh
+    initNonInteractive(tmpDir);
+
+    const content = readFileSync(join(tmpDir, '.gitignore'), 'utf8');
+    const count = content.split('.claude-stack/').length - 1;
+    assert.equal(count, 1);
+  });
+
+  it('creates .ai/memory/ directory', () => {
+    initNonInteractive(tmpDir);
+
+    assert.ok(existsSync(join(tmpDir, '.ai', 'memory')));
+  });
 });

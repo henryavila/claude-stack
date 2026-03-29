@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { detectStack, detectPackages } from './detect.js';
 import { installRules, PACKAGE_ROOT } from './rules.js';
@@ -50,6 +50,12 @@ export function initNonInteractive(projectDir) {
     files: filesMap,
   });
 
+  // Add to .gitignore
+  addToGitignore(projectDir);
+
+  // Create memory directory
+  createMemoryDir(projectDir);
+
   // Check CLAUDE.md
   const claudeMdExists = existsSync(join(projectDir, 'CLAUDE.md'));
 
@@ -63,6 +69,29 @@ export function initNonInteractive(projectDir) {
     claudeMdExists,
     recommendations,
   };
+}
+
+function addToGitignore(projectDir) {
+  const gitignorePath = join(projectDir, '.gitignore');
+  let content = existsSync(gitignorePath) ? readFileSync(gitignorePath, 'utf8') : '';
+
+  const entries = ['.claude-stack/', '.claude/settings.local.json'];
+  let modified = false;
+
+  for (const entry of entries) {
+    if (!content.includes(entry)) {
+      content += (content.endsWith('\n') || content === '' ? '' : '\n') + entry + '\n';
+      modified = true;
+    }
+  }
+
+  if (modified) {
+    writeFileSync(gitignorePath, content, 'utf8');
+  }
+}
+
+function createMemoryDir(projectDir) {
+  mkdirSync(join(projectDir, '.ai', 'memory'), { recursive: true });
 }
 
 function getPackageVersion() {
