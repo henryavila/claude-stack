@@ -21,11 +21,13 @@ describe('CLI e2e', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('shows help with no command', () => {
+  it('help shows all 4 commands', () => {
     const output = execSync(`node ${CLI}`, { encoding: 'utf8' });
     assert.ok(output.includes('Claude Stack'));
     assert.ok(output.includes('init'));
     assert.ok(output.includes('update'));
+    assert.ok(output.includes('status'));
+    assert.ok(output.includes('uninstall'));
   });
 
   it('init creates expected structure', () => {
@@ -38,5 +40,30 @@ describe('CLI e2e', () => {
 
     const settings = JSON.parse(readFileSync(join(tmpDir, '.claude', 'settings.json'), 'utf8'));
     assert.ok(settings.permissions.deny.some(d => d.includes('migrate:fresh')));
+  });
+
+  it('status shows installation info', () => {
+    execSync(`node ${CLI} init --non-interactive`, { cwd: tmpDir, encoding: 'utf8' });
+    const output = execSync(`node ${CLI} status`, { cwd: tmpDir, encoding: 'utf8' });
+    assert.ok(output.includes('laravel'));
+    assert.ok(output.includes('testing.md'));
+  });
+
+  it('status shows not-installed for fresh project', () => {
+    const freshDir = mkdtempSync(join(tmpdir(), 'cs-e2e-fresh-'));
+    try {
+      const output = execSync(`node ${CLI} status`, { cwd: freshDir, encoding: 'utf8' });
+      assert.ok(output.includes('not installed'));
+    } finally {
+      rmSync(freshDir, { recursive: true, force: true });
+    }
+  });
+
+  it('uninstall removes rules and manifest', () => {
+    execSync(`node ${CLI} init --non-interactive`, { cwd: tmpDir, encoding: 'utf8' });
+    execSync(`node ${CLI} uninstall`, { cwd: tmpDir, encoding: 'utf8' });
+
+    assert.ok(!existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'testing.md')));
+    assert.ok(!existsSync(join(tmpDir, '.claude-stack', 'manifest.json')));
   });
 });
