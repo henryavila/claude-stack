@@ -1,46 +1,69 @@
 ---
 name: Claude Stack Design
-description: Design completo do claude-stack — conceito, conteúdo, installer, detecção, settings, CLAUDE.md generation
+description: Design completo do claude-stack — estrutura otimizada de instruções AI + rules por stack
 type: project
 ---
 
 # Claude Stack — Design
 
-## Conceito
+## Propósito
 
-Package NPM único com múltiplas stacks. Detecta projeto e monta combinação de rules.
+Fornecer uma **estrutura otimizada e organizada de instruções para IA** em qualquer projeto. O stack-specific é extensão, não o core.
 
 ```bash
 npx @henryavila/claude-stack init
 
+→ Cria estrutura otimizada (.claude/rules/, settings, guidelines.md)
+→ CLAUDE.md: se não existe → gera via prompt; se existe → analisa e propõe melhorias
 → Detecta stack (composer.json → Laravel, package.json → React)
-→ Detecta packages instalados (Filament, MongoDB, etc.)
-→ Instala rules path-scoped em .claude/rules/
-→ Configura settings (deny rules, MCP, autoMemoryDirectory)
-→ Gera CLAUDE.md via prompt otimizado (IA analisa o projeto)
+→ Instala rules path-scoped da stack em .claude/rules/claude-stack/
+→ Configura settings (deny rules por stack + MCPs)
+→ Recomenda ferramentas (MCPs, atomic-skills, bmad-doc-architect) — instala se aceito
 ```
 
-## 4 Tipos de Conteúdo
+## Duas Camadas
 
-| Tipo | Quando instala | Exemplo |
-|------|---------------|---------|
-| **Shared** | Sempre (toda stack) | code-quality.md (sprintf, null checks, strict_types) |
-| **Stack core** | Se detectou a stack | testing.md (Pest), services.md (SOLID), database.md |
-| **Package-specific** | Se detectou no composer/package.json | filament-v4.md, email-tracking.md, mongodb.md |
-| **CLAUDE.md generation** | Se CLAUDE.md não existe | Prompt para IA gerar baseado na realidade do projeto |
+### Camada 1: CORE (qualquer projeto)
 
-## Detecção de Packages (Laravel)
+| O que | Descrição |
+|-------|-----------|
+| **Estrutura de diretórios** | `.claude/rules/`, `.claude/settings.json`, `.claude/settings.local.json` |
+| **CLAUDE.md** | Gera ou analisa — hub <200 linhas, routing para rules, sem duplicação |
+| **guidelines.md** | Manual operacional (build, test, CI/CD, pre-push checklist) |
+| **Settings base** | `enableAllProjectMcpServers`, autoMemoryDirectory |
+| **MCPs universais** | Context7 (docs), outros que surgirem |
+| **Recomendações** | atomic-skills, bmad-doc-architect — instala se aceito |
 
+### Camada 2: EXTENSION (stack-specific)
+
+| O que | Descrição |
+|-------|-----------|
+| **Stack rules** | testing.md, services.md, database.md, code-quality.md |
+| **Package rules** | filament-v4.md, email-tracking.md, mongodb.md |
+| **Deny rules** | migrate:fresh, migrate:reset, db:wipe (Laravel) |
+| **MCPs de stack** | Laravel Boost (schema, tinker, docs) |
+
+## Detecção de Stack e Packages
+
+### Stack
+| Arquivo | Stack detectada |
+|---------|----------------|
+| `composer.json` com `laravel/framework` | Laravel |
+| `package.json` com `react` | React (futuro) |
+
+### Packages (Laravel)
 | Package no composer.json | Rule instalado |
 |-------------------------|---------------|
 | `filament/filament` v4 | filament-v4.md |
 | `henryavila/email-tracking` | email-tracking.md |
 | `mongodb/laravel-mongodb` | mongodb.md |
-| bmad-doc-architect instalado | documentation.md (aponta para agente) |
 
-## CLAUDE.md — Geração Assistida por IA
+## CLAUDE.md — Geração e Análise Assistida por IA
 
-NÃO é template estático. O installer gera um prompt otimizado que a IA usa para analisar o projeto e criar CLAUDE.md sob medida.
+NÃO é template estático. Dois modos de operação:
+
+### Modo 1: CLAUDE.md NÃO existe → Gerar
+O installer gera um prompt otimizado que a IA usa para analisar o projeto e criar CLAUDE.md sob medida.
 
 O prompt instrui a IA a:
 - Ler composer.json, package.json, directory structure, routes, models, testes
@@ -48,35 +71,92 @@ O prompt instrui a IA a:
 - Gerar max ~100 linhas, só conteúdo project-specific
 - Constraints: "se a IA pode inferir lendo código → não incluir"
 
-Pode ser skill dedicado (`as-init-project`) ou integrado no installer.
+### Modo 2: CLAUDE.md JÁ existe → Analisar e propor melhorias
+O installer analisa o CLAUDE.md existente e propõe melhorias baseadas no padrão documentado:
+- Tamanho (< 200 linhas, Anthropic docs)
+- Conteúdo que deveria ser rule path-scoped em vez de inline
+- Duplicação com rules já instalados
+- Estrutura e organização (hub → routing → rules)
+- Conteúdo que a IA pode inferir do código (não precisa estar no CLAUDE.md)
+
+O modelo NÃO modifica o CLAUDE.md existente automaticamente — apenas propõe.
+
+Prompts ficam no próprio claude-stack: `prompts/generate-claude-md.md` e `prompts/analyze-claude-md.md`.
+
+## Recomendações de Ferramentas
+
+O installer apresenta lista interativa de ferramentas recomendadas. Se o user aceita, **instala na hora** (não só printa o comando).
+
+```
+📦 Ferramentas recomendadas:
+
+MCPs:
+  ☐ Context7 — documentação contextual (qualquer projeto)
+  ☐ Laravel Boost — schema, tinker, docs (se Laravel detectado)
+
+Tools:
+  ☐ atomic-skills — skills de produtividade (as-fix, as-hunt, etc.)
+  ☐ BMAD Method — brainstorming, elicitação de requisitos, agentes especializados
+  ☐ bmad-doc-architect — documentação verificada de módulos (inclui BMAD)
+
+→ Selecione os que deseja instalar
+```
+
+### BMAD Method + doc-architect
+Sempre recomendados como par. BMAD Method é excelente para brainstorming e elicitação de requisitos; doc-architect agrega documentação verificada de módulos.
+
+Instalação é sequencial (claude-stack executa):
+```bash
+npx bmad-method install                                          # instala BMAD no projeto
+npx bmad-method install --custom-content /path/to/bmad-doc-architect  # instala módulo doc-architect
+```
+
+- `npx bmad-method install` já cuida de tudo (não precisa instalar BMAD separado)
+- Se BMAD já instalado → pula para doc-architect
+- Se doc-architect já instalado → mostra como ✅
+- Detecção BMAD: `_bmad/` no projeto
+- Detecção doc-architect: `_bmad/bmad-doc-architect/config.yaml` no projeto
+- Requer clone local do repo bmad-dev-productivity (claude-stack gerencia isso)
+
+### MCPs
+- Verifica se MCP já está configurado em `.claude/settings.json`
+- Se não está → sugere, se aceito → configura no settings
+- Settings.json recebe allow para MCPs aceitos
 
 ## Settings
 
-- `.claude/settings.json`: MERGE com existente (adiciona deny rules + MCP, não sobrescreve)
+- `.claude/settings.json`: MERGE com existente (deny rules + MCP allows, não sobrescreve)
 - `.claude/settings.local.json`: gera autoMemoryDirectory com path absoluto
-- Deny rules (Laravel): migrate:fresh, migrate:reset, migrate:refresh, db:wipe
+- Deny rules são stack-specific (ex Laravel: migrate:fresh, migrate:reset, migrate:refresh, db:wipe)
+- `enableAllProjectMcpServers: true` habilitado no core
 
 ## Estrutura do Repo
 
 ```
 claude-stack/
 ├── src/
-│   ├── init.js              ← entry point
-│   ├── detect.js            ← detecta stack do projeto
-│   ├── update.js            ← atualiza rules com conflict handling
+│   ├── cli.js               ← parse de argumentos (init, update)
+│   ├── init.js               ← handler do comando init
+│   ├── detect.js              ← detecta stack do projeto
+│   ├── settings.js            ← merge de settings.json
+│   ├── recommend.js           ← recomendações de ferramentas (MCPs, tools)
+│   ├── update.js              ← atualiza rules com conflict handling
+│   ├── manifest.js            ← tracking de arquivos instalados
+│   ├── hash.js                ← SHA256 para conflict handling
 │   └── stacks/
-│       ├── laravel.js       ← detecção + rules para Laravel
-│       └── react.js         ← futuro
+│       ├── laravel.js         ← detecção + rules para Laravel
+│       └── react.js           ← futuro
 ├── stacks/
 │   ├── laravel/
-│   │   ├── core/            ← testing.md, services.md, database.md
-│   │   ├── packages/        ← filament-v4.md, email-tracking.md, mongodb.md
-│   │   └── settings.json    ← deny rules Laravel
-│   └── react/               ← futuro
-├── shared/
-│   └── rules/               ← code-quality.md (todas as stacks)
+│   │   ├── core/              ← testing.md, services.md, database.md, code-quality.md
+│   │   ├── packages/          ← filament-v4.md, email-tracking.md, mongodb.md
+│   │   └── settings.json      ← deny rules Laravel
+│   └── react/                 ← futuro
 ├── prompts/
-│   └── generate-claude-md.md
+│   ├── generate-claude-md.md  ← prompt para gerar CLAUDE.md do zero
+│   └── analyze-claude-md.md   ← prompt para analisar CLAUDE.md existente
+├── bin/
+│   └── cli.js                 ← entry point do npx
 └── package.json
 ```
 
@@ -84,35 +164,47 @@ claude-stack/
 
 Rules já criados e testados no projeto Arch (`~/arch/.claude/rules/`):
 
-| Rule no Arch | Destino no claude-stack | Tipo |
+| Rule no Arch | Destino no claude-stack | Ação |
 |-------------|------------------------|------|
-| testing.md | stacks/laravel/core/ | Stack core (remover MongoDB-specific, manter Pest genérico) |
-| services.md | stacks/laravel/core/ | Stack core (SRP, naming, value objects) |
-| database.md | stacks/laravel/core/ | Stack core (getTable(), migrations safety — remover External models) |
-| filament.md | stacks/laravel/packages/ | Package-specific (namespaces v4, base classes, quirks) |
-| email-tracking.md | stacks/laravel/packages/ | Package-specific (TrackableMail, EmailType) |
-| permissions.md | NÃO exportar | Projeto-específico (area-based system do Arch) |
-| documentation.md | NÃO exportar | Projeto-específico (BR-IDs do Arch) |
+| testing.md | stacks/laravel/core/ | Remover MongoDB-specific, manter Pest genérico |
+| services.md | stacks/laravel/core/ | 95% reusável, quase direto |
+| database.md | stacks/laravel/core/ | Remover External models (GLPI, SBP, SPR), manter getTable() e migrations safety |
+| filament.md | stacks/laravel/packages/ | Remover base classes custom, manter v4 genérico |
+| email-tracking.md | stacks/laravel/packages/ | Adaptar class names para genérico |
+| permissions.md | NÃO exportar | 100% projeto-específico (area-based system do Arch) |
+| documentation.md | NÃO exportar | 100% projeto-específico (BR-IDs do Arch). doc-architect substitui |
 
-Rules a CRIAR para o claude-stack:
-- `shared/rules/code-quality.md` — sprintf, null checks, strict_types, comments (extrair do CLAUDE.md do Arch)
+Rules a CRIAR:
+- `stacks/laravel/core/code-quality.md` — strict_types, sprintf, null checks, comments (extrair do CLAUDE.md do Arch)
+- `stacks/laravel/packages/mongodb.md` — a criar do zero (não existe no Arch)
 
 ## Decisões Tomadas
 
+- **CORE é estrutura otimizada de instruções, stack é extensão** — qualquer projeto se beneficia do core
 - Stack rules são concern SEPARADO de skills → repos separados
 - Múltiplas stacks num SÓ package → escolha na instalação
-- Reusar pattern do atomic-skills (installer, conflict handling, manifest)
+- Reusar CONCEITO do atomic-skills (installer interativo, conflict handling, manifest) — adaptar código, não importar como dependência
 - CLAUDE.md gerado por IA via prompt, NÃO template estático
 - Package-specific rules auto-detectados do composer.json/package.json
 - Settings.json: MERGE com existente, não replace
-- Dependência soft com atomic-skills (graceful degradation)
+- Rules instalados em `.claude/rules/claude-stack/` (subdir dedicado, não raiz)
+- **NÃO existe `as-init-project` no atomic-skills** — claude-stack é dono de toda a experiência de init
+- Prompts de CLAUDE.md ficam no claude-stack (`prompts/`), não como skill
+- **Recomendações acionáveis** — se user aceita, instala na hora (não só printa comando)
+- **BMAD + doc-architect sempre recomendados** — BMAD para brainstorm/requisitos, doc-architect para documentação. `npx bmad-method install` cuida de tudo
+- **MCPs: universais (Context7) + stack-specific (Boost)** — check → suggest → install
+- **Sugestão mútua com atomic-skills** — zero acoplamento, cada tool funciona 100% sozinho
+- **Tipo "Shared" eliminado** — core é a estrutura, não rules cross-stack
 
 ## Pendências
 
-| Questão | Opções |
+| Questão | Status |
 |---------|--------|
-| Rules em subdir `stack/` ou raiz de `.claude/rules/`? | A) stack/ subdir B) raiz com manifest tracking |
-| `as-init-project` é skill separado ou parte do claude-stack? | Pode ser ambos |
+| ~~Rules em subdir ou raiz?~~ | ✅ Subdir `claude-stack/` |
+| ~~`as-init-project` é skill separado?~~ | ✅ Não — tudo no claude-stack |
+| ~~Tipo Shared existe?~~ | ✅ Eliminado — core é estrutura, não rules |
+| ~~MCP config no scope?~~ | ✅ Sim — universais + stack-specific, instalação interativa |
+| ~~bmad-doc-architect detecção?~~ | ✅ Sempre recomendado, instala BMAD se necessário |
 | Update flow: conflict handling para rules editados pelo user | Reusar 3-hash do atomic-skills |
 
 ## Contexto do Problema Original
