@@ -87,9 +87,10 @@ export function initNonInteractive(projectDir) {
     createMemoryDir(projectDir);
 
     const claudeMdExists = existsSync(join(projectDir, 'CLAUDE.md'));
+    const guidelinesExists = existsSync(join(projectDir, 'guidelines.md'));
     const recommendations = detectRecommendations(projectDir, stack);
 
-    return { stack, packages, rules: ruleFiles, claudeMdExists, recommendations };
+    return { stack, packages, rules: ruleFiles, claudeMdExists, guidelinesExists, recommendations };
   } catch (error) {
     rollbackInit(writtenFiles, preExisting, paths);
     throw error;
@@ -167,6 +168,14 @@ export async function init(projectDir) {
     }
   } else {
     console.log('  📝 CLAUDE.md encontrado — considere revisar com prompts/analyze-claude-md.md');
+  }
+
+  // guidelines.md guidance
+  if (!result.guidelinesExists) {
+    console.log('  📝 guidelines.md não encontrado.');
+    console.log('  Use o prompt em prompts/generate-guidelines.md para gerar.');
+  } else {
+    console.log('  📝 guidelines.md encontrado.');
   }
 
   // Recommendations

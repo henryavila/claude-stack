@@ -102,4 +102,15 @@ describe('initNonInteractive', () => {
 
     assert.ok(existsSync(join(tmpDir, '.ai', 'memory')));
   });
+
+  it('returns guidelinesExists status', () => {
+    const result = initNonInteractive(tmpDir);
+    assert.equal(result.guidelinesExists, false);
+  });
+
+  it('detects existing guidelines.md', () => {
+    writeFileSync(join(tmpDir, 'guidelines.md'), '# Guidelines');
+    const result = initNonInteractive(tmpDir);
+    assert.equal(result.guidelinesExists, true);
+  });
 });
