@@ -1,14 +1,14 @@
-# Claude Stack
+# Agent Standards
 
-NPM package that installs a structured Claude Code setup for any project, with optional stack modules. Today the only supported stack module is Laravel.
+NPM package that installs operational quality standards for AI agents, with a universal core and optional stack modules. Today the only supported stack module is Laravel.
 
 ## Commands
 
 ```bash
-npx @henryavila/claude-stack init        # Detect stack, install rules + settings
-npx @henryavila/claude-stack update      # Update rules with conflict handling
-npx @henryavila/claude-stack status      # Show installation status
-npx @henryavila/claude-stack uninstall   # Remove claude-stack from project
+npx @henryavila/agent-standards init        # Detect stack, install rules + settings
+npx @henryavila/agent-standards update      # Update rules with conflict handling
+npx @henryavila/agent-standards status      # Show installation status
+npx @henryavila/agent-standards uninstall   # Remove Agent Standards from project
 npm test                                 # Run tests
 ```
 

@@ -1,8 +1,8 @@
-# Claude Stack — Implementation Plan
+# Agent Standards — Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Build a CLI tool (`npx @henryavila/claude-stack init`) that creates an optimized AI instruction structure for any project, with optional stack-specific rules.
+**Goal:** Build a CLI tool (`npx @henryavila/agent-standards init`) that creates an optimized AI instruction structure for any project, with optional stack-specific rules.
 
 **Architecture:** Node.js CLI with two layers — Core (directory structure, CLAUDE.md, settings, recommendations) and Extension (stack-specific rules via detection). Adapts installer patterns from atomic-skills (manifest, 3-hash conflict handling) without importing it as a dependency.
 
@@ -27,12 +27,12 @@
 
 ```json
 {
-  "name": "@henryavila/claude-stack",
+  "name": "@henryavila/agent-standards",
   "version": "0.1.0",
   "description": "Optimized AI instruction structure for any project, with stack-specific rules.",
   "type": "module",
   "bin": {
-    "claude-stack": "bin/cli.js"
+    "agent-standards": "bin/cli.js"
   },
   "files": [
     "bin/",
@@ -54,7 +54,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/henryavila/claude-stack.git"
+    "url": "git+https://github.com/henryavila/agent-standards.git"
   },
   "dependencies": {
     "inquirer": "^12.0.0"
@@ -82,20 +82,20 @@ if (command === 'init') {
   await update(process.cwd());
 } else {
   console.log(`
-  📦 Claude Stack — Optimized AI instructions for your project.
+  📦 Agent Standards — Optimized AI instructions for your project.
 
   Usage:
-    npx @henryavila/claude-stack init      Set up AI instructions + stack rules
-    npx @henryavila/claude-stack update    Update rules with conflict handling
+    npx @henryavila/agent-standards init      Set up AI instructions + stack rules
+    npx @henryavila/agent-standards update    Update rules with conflict handling
 
-  Docs: https://github.com/henryavila/claude-stack
+  Docs: https://github.com/henryavila/agent-standards
   `);
 }
 ```
 
 **Step 3: Install dependencies**
 
-Run: `cd /home/henry/packages/claude-stack && npm install`
+Run: `cd /home/henry/packages/agent-standards && npm install`
 
 **Step 4: Verify CLI shows help**
 
@@ -221,7 +221,7 @@ Expected: FAIL — module not found.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const MANIFEST_DIR = '.claude-stack';
+export const MANIFEST_DIR = '.agent-standards';
 const MANIFEST_FILE = 'manifest.json';
 
 export function readManifest(projectDir) {
@@ -771,9 +771,9 @@ describe('installRules', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('copies core rules to .claude/rules/claude-stack/', () => {
+  it('copies core rules to .claude/rules/agent-standards/', () => {
     const result = installRules(tmpDir, 'laravel', []);
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
 
     // Core rules should exist
     assert.ok(existsSync(join(rulesDir, 'testing.md')));
@@ -785,14 +785,14 @@ describe('installRules', () => {
 
   it('copies package rules when packages detected', () => {
     const result = installRules(tmpDir, 'laravel', ['filament']);
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
 
     assert.ok(existsSync(join(rulesDir, 'filament-v4.md')));
   });
 
   it('does not copy package rules when not detected', () => {
     installRules(tmpDir, 'laravel', []);
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
 
     assert.ok(!existsSync(join(rulesDir, 'filament-v4.md')));
     assert.ok(!existsSync(join(rulesDir, 'email-tracking.md')));
@@ -832,7 +832,7 @@ import { hashContent } from './hash.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const PACKAGE_ROOT = join(__dirname, '..');
 // Use forward slashes consistently (not path.join) for manifest keys
-const RULES_DEST = '.claude/rules/claude-stack';
+const RULES_DEST = '.claude/rules/agent-standards';
 
 const STACK_RULES = {
   laravel: {
@@ -906,7 +906,7 @@ Expected: ALL PASS
 
 ```bash
 git add src/rules.js tests/rules.test.js
-git commit -m "feat: rule installation to .claude/rules/claude-stack/"
+git commit -m "feat: rule installation to .claude/rules/agent-standards/"
 ```
 
 ---
@@ -932,7 +932,7 @@ git commit -m "feat: rule installation to .claude/rules/claude-stack/"
 `prompts/analyze-claude-md.md` — Prompt for AI to review existing CLAUDE.md. Must:
 - Check total size (< 200 lines recommended, cite Anthropic docs)
 - Identify content that should be path-scoped rules instead of inline
-- Find duplication with `.claude/rules/claude-stack/` rules
+- Find duplication with `.claude/rules/agent-standards/` rules
 - Check structure (does it follow hub pattern?)
 - Identify content AI can infer from code (remove candidates)
 - Produce actionable suggestions, not auto-modify
@@ -1144,15 +1144,15 @@ describe('initNonInteractive', () => {
 
     assert.equal(result.stack, 'laravel');
     assert.ok(result.rules.length > 0);
-    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'testing.md')));
-    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'services.md')));
+    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'testing.md')));
+    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'services.md')));
   });
 
   it('installs package-specific rules', () => {
     const result = initNonInteractive(tmpDir);
 
     assert.ok(result.packages.includes('filament'));
-    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'filament-v4.md')));
+    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'filament-v4.md')));
   });
 
   it('creates settings.json with deny rules', () => {
@@ -1173,7 +1173,7 @@ describe('initNonInteractive', () => {
   it('writes manifest', () => {
     initNonInteractive(tmpDir);
 
-    assert.ok(existsSync(join(tmpDir, '.claude-stack', 'manifest.json')));
+    assert.ok(existsSync(join(tmpDir, '.agent-standards', 'manifest.json')));
   });
 
   it('detects CLAUDE.md status', () => {
@@ -1281,12 +1281,12 @@ function getPackageVersion() {
  * Interactive init — entry point from CLI.
  */
 export async function init(projectDir) {
-  console.log('\n  📦 Claude Stack — Optimized AI instructions for your project.\n');
+  console.log('\n  📦 Agent Standards — Optimized AI instructions for your project.\n');
 
   const result = initNonInteractive(projectDir);
 
   if (result.alreadyInstalled) {
-    console.log('  Já instalado. Use `claude-stack update` para atualizar.\n');
+    console.log('  Já instalado. Use `agent-standards update` para atualizar.\n');
     return;
   }
 
@@ -1385,7 +1385,7 @@ describe('updateNonInteractive', () => {
   it('overwrites silently when only package changed', () => {
     // Simulate: file on disk = installed version, package has new version
     const oldContent = '# Old testing rules';
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), oldContent);
 
@@ -1394,7 +1394,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(oldContent),
           source: 'laravel/core/testing.md',
         }
@@ -1416,7 +1416,7 @@ describe('updateNonInteractive', () => {
     );
     const userEdited = originalContent + '\n# My custom addition';
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), userEdited);
 
@@ -1425,7 +1425,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(originalContent),
           source: 'laravel/core/testing.md',
         }
@@ -1437,7 +1437,7 @@ describe('updateNonInteractive', () => {
 
     // User edit should be preserved
     assert.ok(afterUpdate.includes('# My custom addition'));
-    assert.ok(result.kept.includes('.claude/rules/claude-stack/testing.md'));
+    assert.ok(result.kept.includes('.claude/rules/agent-standards/testing.md'));
   });
 
   it('skips unchanged files', () => {
@@ -1446,7 +1446,7 @@ describe('updateNonInteractive', () => {
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), content);
 
@@ -1455,7 +1455,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(content),
           source: 'laravel/core/testing.md',
         }
@@ -1463,7 +1463,7 @@ describe('updateNonInteractive', () => {
     });
 
     const result = updateNonInteractive(tmpDir);
-    assert.ok(result.skipped.includes('.claude/rules/claude-stack/testing.md'));
+    assert.ok(result.skipped.includes('.claude/rules/agent-standards/testing.md'));
   });
 });
 ```
@@ -1487,7 +1487,7 @@ import { getStackConfig, PACKAGE_ROOT } from './rules.js';
  * Build map of what the package wants to install now, WITHOUT writing.
  * Reads source files from the package directly.
  */
-const RULES_DEST = '.claude/rules/claude-stack';
+const RULES_DEST = '.claude/rules/agent-standards';
 
 function buildNewFilesMap(stack, packages) {
   const newFiles = new Map();
@@ -1517,7 +1517,7 @@ function buildNewFilesMap(stack, packages) {
 export function updateNonInteractive(projectDir) {
   const manifest = readManifest(projectDir);
   if (!manifest) {
-    throw new Error('No manifest found. Run `claude-stack init` first.');
+    throw new Error('No manifest found. Run `agent-standards init` first.');
   }
 
   const stack = detectStack(projectDir);
@@ -1589,7 +1589,7 @@ export function updateNonInteractive(projectDir) {
 }
 
 function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = []) {
-  const rulesDir = join(projectDir, '.claude', 'rules', 'claude-stack');
+  const rulesDir = join(projectDir, '.claude', 'rules', 'agent-standards');
   const filesMap = {};
 
   if (existsSync(rulesDir)) {
@@ -1622,7 +1622,7 @@ function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = [
  * Interactive update.
  */
 export async function update(projectDir) {
-  console.log('\n  📦 Claude Stack — Updating rules...\n');
+  console.log('\n  📦 Agent Standards — Updating rules...\n');
 
   try {
     const result = updateNonInteractive(projectDir);
@@ -1690,7 +1690,7 @@ describe('CLI e2e', () => {
 
   it('shows help with no command', () => {
     const output = execSync(`node ${CLI}`, { encoding: 'utf8' });
-    assert.ok(output.includes('Claude Stack'));
+    assert.ok(output.includes('Agent Standards'));
     assert.ok(output.includes('init'));
     assert.ok(output.includes('update'));
   });
@@ -1698,10 +1698,10 @@ describe('CLI e2e', () => {
   it('init creates expected structure', () => {
     execSync(`node ${CLI} init`, { cwd: tmpDir, encoding: 'utf8' });
 
-    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'testing.md')));
+    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'testing.md')));
     assert.ok(existsSync(join(tmpDir, '.claude', 'settings.json')));
     assert.ok(existsSync(join(tmpDir, '.claude', 'settings.local.json')));
-    assert.ok(existsSync(join(tmpDir, '.claude-stack', 'manifest.json')));
+    assert.ok(existsSync(join(tmpDir, '.agent-standards', 'manifest.json')));
 
     const settings = JSON.parse(readFileSync(join(tmpDir, '.claude', 'settings.json'), 'utf8'));
     assert.ok(settings.permissions.deny.some(d => d.includes('migrate:fresh')));

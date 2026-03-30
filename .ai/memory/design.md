@@ -1,17 +1,17 @@
 ---
-name: Claude Stack Design
-description: Design completo do claude-stack — estrutura otimizada de instruções AI + rules por stack
+name: Agent Standards Design
+description: Design completo do agent-standards — padrões operacionais para agentes com core universal e módulos opcionais por stack
 type: project
 ---
 
-# Claude Stack — Design
+# Agent Standards — Design
 
 ## Propósito
 
-Fornecer uma **estrutura otimizada e organizada de instruções para IA** em qualquer projeto. O stack-specific é extensão, não o core.
+Fornecer **padrões operacionais otimizados para agentes de IA** em qualquer projeto. O stack-specific é extensão, não o core.
 
 ```bash
-npx @henryavila/claude-stack init
+npx @henryavila/agent-standards init
 
 → Cria estrutura otimizada (.claude/rules/, settings, guidelines.md)
 → CLAUDE.md: se não existe → gera via prompt; se existe → analisa e propõe melhorias
@@ -81,7 +81,7 @@ O installer analisa o CLAUDE.md existente e propõe melhorias baseadas no padrã
 
 O modelo NÃO modifica o CLAUDE.md existente automaticamente — apenas propõe.
 
-Prompts ficam no próprio claude-stack: `prompts/generate-claude-md.md` e `prompts/analyze-claude-md.md`.
+Prompts ficam no próprio agent-standards: `prompts/generate-claude-md.md` e `prompts/analyze-claude-md.md`.
 
 ## Recomendações de Ferramentas
 
@@ -105,7 +105,7 @@ Tools:
 ### BMAD Method + doc-architect
 Sempre recomendados como par. BMAD Method é excelente para brainstorming e elicitação de requisitos; doc-architect agrega documentação verificada de módulos.
 
-Instalação é sequencial (claude-stack executa):
+Instalação é sequencial (agent-standards executa):
 ```bash
 npx bmad-method install                                          # instala BMAD no projeto
 npx bmad-method install --custom-content /path/to/bmad-doc-architect  # instala módulo doc-architect
@@ -116,7 +116,7 @@ npx bmad-method install --custom-content /path/to/bmad-doc-architect  # instala 
 - Se doc-architect já instalado → mostra como ✅
 - Detecção BMAD: `_bmad/` no projeto
 - Detecção doc-architect: `_bmad/bmad-doc-architect/config.yaml` no projeto
-- Requer clone local do repo bmad-dev-productivity (claude-stack gerencia isso)
+- Requer clone local do repo bmad-dev-productivity (agent-standards gerencia isso)
 
 ### MCPs
 - Verifica se MCP já está configurado em `.claude/settings.json`
@@ -133,7 +133,7 @@ npx bmad-method install --custom-content /path/to/bmad-doc-architect  # instala 
 ## Estrutura do Repo
 
 ```
-claude-stack/
+agent-standards/
 ├── src/
 │   ├── cli.js               ← parse de argumentos (init, update)
 │   ├── init.js               ← handler do comando init
@@ -164,7 +164,7 @@ claude-stack/
 
 Rules já criados e testados no projeto Arch (`~/arch/.claude/rules/`):
 
-| Rule no Arch | Destino no claude-stack | Ação |
+| Rule no Arch | Destino no agent-standards | Ação |
 |-------------|------------------------|------|
 | testing.md | stacks/laravel/core/ | Remover MongoDB-specific, manter Pest genérico |
 | services.md | stacks/laravel/core/ | 95% reusável, quase direto |
@@ -189,9 +189,9 @@ Rules a CRIAR:
 - Package-specific rules auto-detectados do composer.json/package.json
 - Settings.json: MERGE com existente, não replace
 - Manifest guarda metadado do que o core criou para permitir uninstall correto em projetos sem stack suportada
-- Rules instalados em `.claude/rules/claude-stack/` (subdir dedicado, não raiz)
-- **NÃO existe `as-init-project` no atomic-skills** — claude-stack é dono de toda a experiência de init
-- Prompts de CLAUDE.md ficam no claude-stack (`prompts/`), não como skill
+- Rules instalados em `.claude/rules/agent-standards/` (subdir dedicado, não raiz)
+- **NÃO existe `as-init-project` no atomic-skills** — agent-standards é dono de toda a experiência de init
+- Prompts de CLAUDE.md ficam no agent-standards (`prompts/`), não como skill
 - **Recomendações acionáveis** — se user aceita, instala na hora (não só printa comando)
 - **BMAD + doc-architect sempre recomendados** — BMAD para brainstorm/requisitos, doc-architect para documentação. `npx bmad-method install` cuida de tudo
 - **MCPs: universais (Context7) + stack-specific (Boost)** — check → suggest → install
@@ -202,8 +202,8 @@ Rules a CRIAR:
 
 | Questão | Status |
 |---------|--------|
-| ~~Rules em subdir ou raiz?~~ | ✅ Subdir `claude-stack/` |
-| ~~`as-init-project` é skill separado?~~ | ✅ Não — tudo no claude-stack |
+| ~~Rules em subdir ou raiz?~~ | ✅ Subdir `agent-standards/` |
+| ~~`as-init-project` é skill separado?~~ | ✅ Não — tudo no agent-standards |
 | ~~Tipo Shared existe?~~ | ✅ Eliminado — core é estrutura, não rules |
 | ~~MCP config no scope?~~ | ✅ Sim — universais + stack-specific, instalação interativa |
 | ~~bmad-doc-architect detecção?~~ | ✅ Sempre recomendado, instala BMAD se necessário |
@@ -220,4 +220,4 @@ Na sessão de 2026-03-27, otimizamos o CLAUDE.md do projeto Arch de 2874 linhas 
 - autoMemoryDirectory elimina redirect frágil de auto-memory
 - Deny rules em settings.json = enforcement real (não depende de IA ler instruções)
 
-Esses aprendizados são a base do que o claude-stack automatiza.
+Esses aprendizados são a base do que o agent-standards automatiza.

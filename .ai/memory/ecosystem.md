@@ -14,7 +14,7 @@ type: project
 | 2 | `codeguard` | Enforcer de qualidade de código | Existe, não explorado |
 | 3 | `bmad-doc-architect` | Agente BMAD para documentação de módulos | Existe |
 | 4 | `bmad-atomic-flow` | Workflow BMAD→Superpowers (design→dev) | Protótipo |
-| 5 | `claude-stack` | Rules + settings por stack (Laravel, React, etc.) | **ESTE PROJETO** |
+| 5 | `agent-standards` | Padrões operacionais para agentes com core universal + módulos opcionais (hoje: Laravel) | **ESTE PROJETO** |
 | 6 | `wsl-dev-setup` | Setup de máquina WSL2: infra + remote access + dotfiles | Ativo, migrar para npx |
 | 7 | `dev-ecosystem` | README-index que mapeia todo o ecossistema | A criar |
 | 8 | `claude-knowledge` | Cache de pesquisas compiladas (per-user, cross-project) | A criar |
@@ -26,14 +26,14 @@ type: project
 |--------------------------|--------------------------------------|
 | `atomic-skills` (módulo knowledge) | `claude-knowledge` (cache de pesquisas) |
 | `nexus` | `nexus-data` (catálogo) + `nexus-web` (frontend) |
-| `claude-stack` | Não precisa (dados ficam no projeto) |
+| `agent-standards` | Não precisa (dados ficam no projeto) |
 | `wsl-dev-setup` | Não precisa (configura a máquina local) |
 
 ## Padrão unificado de instalação
 
 ```bash
 npx @henryavila/wsl-dev-setup install     # Máquina
-npx @henryavila/claude-stack init          # Stack
+npx @henryavila/agent-standards init     # Agent standards
 npx @henryavila/atomic-skills install      # Skills
 ```
 
@@ -45,7 +45,7 @@ atomic-skills (standalone, zero dependências)
 ├── Módulo knowledge: ~/.claude-knowledge/ (per-user, git repo)
 └── Skill as-research: consulta knowledge cache
 
-claude-stack (funciona sozinho, MELHOR COM atomic-skills)
+agent-standards (funciona sozinho, MELHOR COM atomic-skills)
 ├── Se AS presente: usa as-init-memory, as-research, as-prompt
 ├── Se AS ausente: graceful degradation — pula memória/cache
 └── Installer verifica e sugere instalar AS se não encontrado

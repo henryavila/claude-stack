@@ -65,7 +65,7 @@ Documentar:
 
 **Step 2: Verify package contents**
 
-Run: `npm pack --dry-run --cache /tmp/claude-stack-npm-cache`
+Run: `npm pack --dry-run --cache /tmp/agent-standards-npm-cache`
 Expected: README presente no tarball
 
 ### Task 4: Verificação final

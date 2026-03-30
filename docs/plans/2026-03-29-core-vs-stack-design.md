@@ -28,7 +28,7 @@ O `core` deve rodar para qualquer projeto e sempre garantir:
 
 - `.claude/settings.json`
 - `.claude/settings.local.json`
-- `.claude-stack/manifest.json`
+- `.agent-standards/manifest.json`
 - `.ai/memory/`
 
 Se não houver stack suportada, o `core` instala apenas a base, sem regras específicas.

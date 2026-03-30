@@ -9,7 +9,7 @@ You are reviewing this project's CLAUDE.md file to identify improvements. Your g
 Read these files before analyzing:
 
 1. **`CLAUDE.md`** — the file under review
-2. **`.claude/rules/`** — all rule files, including subdirectories (e.g., `.claude/rules/claude-stack/`). Read every file.
+2. **`.claude/rules/`** — all rule files, including subdirectories (e.g., `.claude/rules/agent-standards/`). Read every file.
 3. **`.claude/settings.json`** — check for deny rules and MCP configuration
 4. **Project manifests** — `composer.json` and/or `package.json` for framework and dependency context
 
@@ -26,7 +26,7 @@ Produce a report with the following sections. For every issue found, reference s
 
 ### 2.2 Duplication with Rules
 
-Compare CLAUDE.md content against every file in `.claude/rules/` (including `.claude/rules/claude-stack/`).
+Compare CLAUDE.md content against every file in `.claude/rules/` (including `.claude/rules/agent-standards/`).
 
 For each duplication found, report:
 - The line(s) in CLAUDE.md

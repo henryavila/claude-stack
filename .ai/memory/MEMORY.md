@@ -1,8 +1,8 @@
-# Claude Stack — Project Memory
+# Agent Standards — Project Memory
 
 ## O que é
 
-Package NPM com setup estruturado do Claude Code para qualquer projeto, com módulos opcionais por stack. Instala via `npx @henryavila/claude-stack init`.
+Package NPM com padrões operacionais de qualidade para agentes de IA, com `core` universal e módulos opcionais por stack. Instala via `npx @henryavila/agent-standards init`.
 
 Contrato atual:
 - `core` é universal e roda em qualquer projeto
@@ -16,7 +16,7 @@ Faz parte de um ecossistema de 9 repos de produtividade AI. Ver [ecosystem.md](e
 
 Posição no ecossistema:
 - `wsl-dev-setup` → Máquina (infra + terminal)
-- **`claude-stack`** → Stack (rules + settings + CLAUDE.md) ← ESTE PROJETO
+- **`agent-standards`** → Operational standards (core + módulos opcionais) ← ESTE PROJETO
 - `atomic-skills` → Skills (prompts de tarefa)
 - `claude-knowledge` → Knowledge cache (pesquisas compiladas)
 

@@ -1,6 +1,6 @@
-# Claude Stack
+# Agent Standards
 
-Structured Claude Code setup for any project, with optional stack modules.
+Operational quality standards for AI agents, with a universal core and optional stack modules.
 
 Today:
 
@@ -9,14 +9,14 @@ Today:
 
 ## What `init` installs
 
-For any project, `claude-stack init` sets up the base Claude structure:
+For any project, `agent-standards init` sets up the base agent structure:
 
 - `.claude/settings.json`
 - `.claude/settings.local.json`
-- `.claude-stack/manifest.json`
+- `.agent-standards/manifest.json`
 - `.ai/memory/`
 
-If the project matches a supported stack module, Claude Stack also applies stack-specific rules and settings.
+If the project matches a supported stack module, Agent Standards also applies stack-specific rules and settings.
 
 Current support matrix:
 
@@ -26,10 +26,10 @@ Current support matrix:
 ## Commands
 
 ```bash
-npx @henryavila/claude-stack init
-npx @henryavila/claude-stack update
-npx @henryavila/claude-stack status
-npx @henryavila/claude-stack uninstall
+npx @henryavila/agent-standards init
+npx @henryavila/agent-standards update
+npx @henryavila/agent-standards status
+npx @henryavila/agent-standards uninstall
 npm test
 ```
 
@@ -37,7 +37,7 @@ npm test
 
 ### Core
 
-The core layer is universal. It prepares the project for Claude Code without assuming a framework-specific module is available.
+The core layer is universal. It prepares the project for AI-agent workflows without assuming a framework-specific module is available.
 
 Core responsibilities:
 
@@ -50,7 +50,7 @@ Core responsibilities:
 
 Stack modules are optional overlays.
 
-When a supported stack is detected, Claude Stack can:
+When a supported stack is detected, Agent Standards can:
 
 - install path-scoped rules
 - merge stack-specific safety settings
@@ -73,7 +73,7 @@ This keeps local customizations intact unless the user explicitly overwrites the
 
 ## Uninstall behavior
 
-`uninstall` removes what Claude Stack installed while preserving project-owned content such as:
+`uninstall` removes what Agent Standards installed while preserving project-owned content such as:
 
 - `CLAUDE.md`
 - `guidelines.md`

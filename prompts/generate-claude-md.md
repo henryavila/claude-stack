@@ -49,7 +49,7 @@ Read and analyze the following sources. Do not skip any.
 
 ## Step 2: Read Installed Rules (Critical — Avoid Duplication)
 
-Read all files in `.claude/rules/` (including subdirectories like `.claude/rules/claude-stack/`).
+Read all files in `.claude/rules/` (including subdirectories like `.claude/rules/agent-standards/`).
 
 These rules are loaded conditionally by Claude Code based on file path context. The CLAUDE.md you generate must NOT duplicate any content from these rules. Instead, CLAUDE.md should reference them via a routing table (see structure below).
 
