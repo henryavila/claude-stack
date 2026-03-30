@@ -25,15 +25,15 @@ describe('initNonInteractive', () => {
 
     assert.equal(result.stack, 'laravel');
     assert.ok(result.rules.length > 0);
-    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'testing.md')));
-    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'services.md')));
+    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'testing.md')));
+    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'services.md')));
   });
 
   it('installs package-specific rules', () => {
     const result = initNonInteractive(tmpDir);
 
     assert.ok(result.packages.includes('filament'));
-    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'filament-v4.md')));
+    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'filament-v4.md')));
   });
 
   it('creates settings.json with deny rules', () => {
@@ -54,7 +54,7 @@ describe('initNonInteractive', () => {
   it('writes manifest', () => {
     initNonInteractive(tmpDir);
 
-    assert.ok(existsSync(join(tmpDir, '.claude-stack', 'manifest.json')));
+    assert.ok(existsSync(join(tmpDir, '.agent-standards', 'manifest.json')));
   });
 
   it('detects CLAUDE.md status', () => {
@@ -76,24 +76,24 @@ describe('initNonInteractive', () => {
     assert.equal(result.alreadyInstalled, true);
   });
 
-  it('adds .claude-stack/ and settings.local.json to .gitignore', () => {
+  it('adds .agent-standards/ and settings.local.json to .gitignore', () => {
     initNonInteractive(tmpDir);
 
     const gitignorePath = join(tmpDir, '.gitignore');
     assert.ok(existsSync(gitignorePath));
     const content = readFileSync(gitignorePath, 'utf8');
-    assert.ok(content.includes('.claude-stack/'));
+    assert.ok(content.includes('.agent-standards/'));
     assert.ok(content.includes('.claude/settings.local.json'));
   });
 
   it('does not duplicate gitignore entries on re-run', () => {
     // Manually create gitignore with entry already present
-    writeFileSync(join(tmpDir, '.gitignore'), '.claude-stack/\n');
+    writeFileSync(join(tmpDir, '.gitignore'), '.agent-standards/\n');
     // Remove manifest so init runs fresh
     initNonInteractive(tmpDir);
 
     const content = readFileSync(join(tmpDir, '.gitignore'), 'utf8');
-    const count = content.split('.claude-stack/').length - 1;
+    const count = content.split('.agent-standards/').length - 1;
     assert.equal(count, 1);
   });
 
@@ -137,8 +137,8 @@ describe('initNonInteractive without supported stack', () => {
     assert.equal(result.rules.length, 0);
     assert.ok(existsSync(join(tmpDir, '.claude', 'settings.json')));
     assert.ok(existsSync(join(tmpDir, '.claude', 'settings.local.json')));
-    assert.ok(existsSync(join(tmpDir, '.claude-stack', 'manifest.json')));
+    assert.ok(existsSync(join(tmpDir, '.agent-standards', 'manifest.json')));
     assert.ok(existsSync(join(tmpDir, '.ai', 'memory')));
-    assert.ok(!existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack')));
+    assert.ok(!existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards')));
   });
 });

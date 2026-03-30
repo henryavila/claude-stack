@@ -16,9 +16,9 @@ describe('installRules', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('copies core rules to .claude/rules/claude-stack/', () => {
+  it('copies core rules to .claude/rules/agent-standards/', () => {
     const result = installRules(tmpDir, 'laravel', []);
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
 
     assert.ok(existsSync(join(rulesDir, 'testing.md')));
     assert.ok(existsSync(join(rulesDir, 'services.md')));
@@ -29,14 +29,14 @@ describe('installRules', () => {
 
   it('copies package rules when packages detected', () => {
     const result = installRules(tmpDir, 'laravel', ['filament']);
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
 
     assert.ok(existsSync(join(rulesDir, 'filament-v4.md')));
   });
 
   it('does not copy package rules when not detected', () => {
     installRules(tmpDir, 'laravel', []);
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
 
     assert.ok(!existsSync(join(rulesDir, 'filament-v4.md')));
     assert.ok(!existsSync(join(rulesDir, 'email-tracking.md')));

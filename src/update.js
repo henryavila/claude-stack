@@ -140,7 +140,7 @@ export async function updateNonInteractive(projectDir, options = {}) {
 }
 
 function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = [], sourceMap = new Map()) {
-  const rulesDir = join(projectDir, '.claude', 'rules', 'claude-stack');
+  const rulesDir = join(projectDir, RULES_DEST);
   const filesMap = {};
 
   if (existsSync(rulesDir)) {

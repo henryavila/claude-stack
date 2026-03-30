@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const MANIFEST_DIR = '.claude-stack';
+export const MANIFEST_DIR = '.agent-standards';
 const MANIFEST_FILE = 'manifest.json';
 
 export function readManifest(projectDir) {

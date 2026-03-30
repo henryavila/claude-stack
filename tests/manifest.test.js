@@ -23,6 +23,7 @@ describe('manifest', () => {
   it('writes and reads manifest', () => {
     const data = { version: '0.1.0', files: { 'a.md': { installed_hash: 'abc' } } };
     writeManifest(tmpDir, data);
+    assert.ok(existsSync(join(tmpDir, '.agent-standards', 'manifest.json')));
     const result = readManifest(tmpDir);
     assert.equal(result.version, '0.1.0');
     assert.equal(result.files['a.md'].installed_hash, 'abc');

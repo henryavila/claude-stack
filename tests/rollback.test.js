@@ -18,7 +18,7 @@ describe('rollbackInit', () => {
   });
 
   it('removes written files', () => {
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     const file1 = join(rulesDir, 'testing.md');
     const file2 = join(rulesDir, 'services.md');
@@ -30,7 +30,7 @@ describe('rollbackInit', () => {
     const paths = {
       settings: join(tmpDir, '.claude', 'settings.json'),
       localSettings: join(tmpDir, '.claude', 'settings.local.json'),
-      manifest: join(tmpDir, '.claude-stack', 'manifest.json'),
+      manifest: join(tmpDir, '.agent-standards', 'manifest.json'),
     };
 
     rollbackInit(writtenFiles, preExisting, paths);
@@ -41,11 +41,11 @@ describe('rollbackInit', () => {
 
   it('removes settings and manifest created by init', () => {
     mkdirSync(join(tmpDir, '.claude'), { recursive: true });
-    mkdirSync(join(tmpDir, '.claude-stack'), { recursive: true });
+    mkdirSync(join(tmpDir, '.agent-standards'), { recursive: true });
 
     const settingsPath = join(tmpDir, '.claude', 'settings.json');
     const localPath = join(tmpDir, '.claude', 'settings.local.json');
-    const manifestPath = join(tmpDir, '.claude-stack', 'manifest.json');
+    const manifestPath = join(tmpDir, '.agent-standards', 'manifest.json');
     writeFileSync(settingsPath, '{}');
     writeFileSync(localPath, '{}');
     writeFileSync(manifestPath, '{}');
@@ -69,7 +69,7 @@ describe('rollbackInit', () => {
     const paths = {
       settings: settingsPath,
       localSettings: join(tmpDir, '.claude', 'settings.local.json'),
-      manifest: join(tmpDir, '.claude-stack', 'manifest.json'),
+      manifest: join(tmpDir, '.agent-standards', 'manifest.json'),
     };
 
     rollbackInit([], preExisting, paths);
@@ -82,7 +82,7 @@ describe('rollbackInit', () => {
     const paths = {
       settings: join(tmpDir, '.claude', 'settings.json'),
       localSettings: join(tmpDir, '.claude', 'settings.local.json'),
-      manifest: join(tmpDir, '.claude-stack', 'manifest.json'),
+      manifest: join(tmpDir, '.agent-standards', 'manifest.json'),
     };
 
     assert.doesNotThrow(() => {

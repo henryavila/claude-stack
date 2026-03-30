@@ -37,10 +37,10 @@ describe('CLI e2e', () => {
   it('init creates expected structure', () => {
     execSync(`node ${CLI} init --non-interactive`, { cwd: tmpDir, encoding: 'utf8' });
 
-    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'testing.md')));
+    assert.ok(existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'testing.md')));
     assert.ok(existsSync(join(tmpDir, '.claude', 'settings.json')));
     assert.ok(existsSync(join(tmpDir, '.claude', 'settings.local.json')));
-    assert.ok(existsSync(join(tmpDir, '.claude-stack', 'manifest.json')));
+    assert.ok(existsSync(join(tmpDir, '.agent-standards', 'manifest.json')));
 
     const settings = JSON.parse(readFileSync(join(tmpDir, '.claude', 'settings.json'), 'utf8'));
     assert.ok(settings.permissions.deny.some(d => d.includes('migrate:fresh')));
@@ -69,7 +69,7 @@ describe('CLI e2e', () => {
     execSync(`node ${CLI} init --non-interactive`, { cwd: tmpDir, encoding: 'utf8' });
     execSync(`node ${CLI} uninstall`, { cwd: tmpDir, encoding: 'utf8' });
 
-    assert.ok(!existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'testing.md')));
-    assert.ok(!existsSync(join(tmpDir, '.claude-stack', 'manifest.json')));
+    assert.ok(!existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'testing.md')));
+    assert.ok(!existsSync(join(tmpDir, '.agent-standards', 'manifest.json')));
   });
 });

@@ -6,7 +6,7 @@ import { hashContent } from './hash.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const PACKAGE_ROOT = join(__dirname, '..');
 // Use forward slashes consistently (not path.join) for manifest keys
-export const RULES_DEST = '.claude/rules/claude-stack';
+export const RULES_DEST = '.claude/rules/agent-standards';
 
 const STACK_RULES = {
   laravel: {

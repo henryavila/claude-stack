@@ -25,13 +25,13 @@ describe('uninstallNonInteractive', () => {
   it('removes all installed rule files', () => {
     uninstallNonInteractive(tmpDir);
 
-    assert.ok(!existsSync(join(tmpDir, '.claude', 'rules', 'claude-stack')));
+    assert.ok(!existsSync(join(tmpDir, '.claude', 'rules', 'agent-standards')));
   });
 
   it('removes manifest directory', () => {
     uninstallNonInteractive(tmpDir);
 
-    assert.ok(!existsSync(join(tmpDir, '.claude-stack')));
+    assert.ok(!existsSync(join(tmpDir, '.agent-standards')));
   });
 
   it('removes deny rules from settings.json but preserves other settings', () => {
@@ -45,7 +45,7 @@ describe('uninstallNonInteractive', () => {
 
     const after = JSON.parse(readFileSync(settingsPath, 'utf8'));
     assert.equal(after.customKey, true);
-    // Deny rules added by claude-stack should be removed
+    // Deny rules added by agent-standards should be removed
     const denyRules = after.permissions?.deny || [];
     assert.ok(!denyRules.some(d => d.includes('migrate:fresh')));
   });
@@ -74,7 +74,7 @@ describe('uninstallNonInteractive', () => {
   });
 
   it('throws when not installed', () => {
-    rmSync(join(tmpDir, '.claude-stack'), { recursive: true, force: true });
+    rmSync(join(tmpDir, '.agent-standards'), { recursive: true, force: true });
     assert.throws(() => uninstallNonInteractive(tmpDir), /not installed/i);
   });
 
@@ -99,11 +99,11 @@ describe('uninstallNonInteractive without supported stack', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('removes core settings files that were created by claude-stack', () => {
+  it('removes core settings files that were created by agent-standards', () => {
     uninstallNonInteractive(tmpDir);
 
     assert.ok(!existsSync(join(tmpDir, '.claude', 'settings.json')));
     assert.ok(!existsSync(join(tmpDir, '.claude', 'settings.local.json')));
-    assert.ok(!existsSync(join(tmpDir, '.claude-stack')));
+    assert.ok(!existsSync(join(tmpDir, '.agent-standards')));
   });
 });

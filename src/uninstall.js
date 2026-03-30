@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, existsSync, unlinkSync, rmSync, readdirSync, rmdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { readManifest, MANIFEST_DIR } from './manifest.js';
-import { PACKAGE_ROOT } from './rules.js';
+import { PACKAGE_ROOT, RULES_DEST } from './rules.js';
 
 function isDefaultCoreSettings(settings) {
   if (!settings || typeof settings !== 'object' || Array.isArray(settings)) return false;
@@ -51,8 +51,8 @@ export function uninstallNonInteractive(projectDir) {
     }
   }
 
-  // Clean up empty claude-stack rules directory
-  const rulesDir = join(projectDir, '.claude', 'rules', 'claude-stack');
+  // Clean up empty Agent Standards rules directory
+  const rulesDir = join(projectDir, RULES_DEST);
   try {
     if (existsSync(rulesDir) && readdirSync(rulesDir).length === 0) {
       rmdirSync(rulesDir);

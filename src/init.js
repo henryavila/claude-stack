@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { detectStack, detectPackages } from './detect.js';
 import { installRules, PACKAGE_ROOT } from './rules.js';
 import { mergeSettings, generateLocalSettings } from './settings.js';
-import { readManifest, writeManifest } from './manifest.js';
+import { readManifest, writeManifest, MANIFEST_DIR } from './manifest.js';
 import { detectRecommendations } from './recommend.js';
 import { promptRecommendations } from './prompts.js';
 import { execSync } from 'node:child_process';
@@ -43,7 +43,7 @@ export function initNonInteractive(projectDir) {
   const paths = {
     settings: join(projectDir, '.claude', 'settings.json'),
     localSettings: join(projectDir, '.claude', 'settings.local.json'),
-    manifest: join(projectDir, '.claude-stack', 'manifest.json'),
+    manifest: join(projectDir, MANIFEST_DIR, 'manifest.json'),
   };
   const preExisting = {
     settings: existsSync(paths.settings),
@@ -104,7 +104,7 @@ function addToGitignore(projectDir) {
   const gitignorePath = join(projectDir, '.gitignore');
   let content = existsSync(gitignorePath) ? readFileSync(gitignorePath, 'utf8') : '';
 
-  const entries = ['.claude-stack/', '.claude/settings.local.json'];
+  const entries = [`${MANIFEST_DIR}/`, '.claude/settings.local.json'];
   let modified = false;
 
   for (const entry of entries) {

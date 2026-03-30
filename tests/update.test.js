@@ -23,7 +23,7 @@ describe('updateNonInteractive', () => {
 
   it('overwrites silently when only package changed', async () => {
     const oldContent = '# Old testing rules';
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), oldContent);
 
@@ -32,7 +32,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(oldContent),
           source: 'laravel/core/testing.md',
         }
@@ -52,7 +52,7 @@ describe('updateNonInteractive', () => {
     );
     const userEdited = originalContent + '\n# My custom addition';
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), userEdited);
 
@@ -61,7 +61,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(originalContent),
           source: 'laravel/core/testing.md',
         }
@@ -72,7 +72,7 @@ describe('updateNonInteractive', () => {
     const afterUpdate = readFileSync(join(rulesDir, 'testing.md'), 'utf8');
 
     assert.ok(afterUpdate.includes('# My custom addition'));
-    assert.ok(result.kept.includes('.claude/rules/claude-stack/testing.md'));
+    assert.ok(result.kept.includes('.claude/rules/agent-standards/testing.md'));
   });
 
   it('skips unchanged files', async () => {
@@ -80,7 +80,7 @@ describe('updateNonInteractive', () => {
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), content);
 
@@ -89,7 +89,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(content),
           source: 'laravel/core/testing.md',
         }
@@ -97,7 +97,7 @@ describe('updateNonInteractive', () => {
     });
 
     const result = await updateNonInteractive(tmpDir);
-    assert.ok(result.skipped.includes('.claude/rules/claude-stack/testing.md'));
+    assert.ok(result.skipped.includes('.claude/rules/agent-standards/testing.md'));
   });
 
   it('throws when no manifest exists', async () => {
@@ -106,7 +106,7 @@ describe('updateNonInteractive', () => {
 
   it('removes orphaned files', async () => {
     const content = '# Old rule that no longer exists';
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'obsolete.md'), content);
 
@@ -115,7 +115,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/obsolete.md': {
+        '.claude/rules/agent-standards/obsolete.md': {
           installed_hash: hashContent(content),
           source: 'laravel/core/obsolete.md',
         }
@@ -124,14 +124,14 @@ describe('updateNonInteractive', () => {
 
     const result = await updateNonInteractive(tmpDir);
     assert.ok(!existsSync(join(rulesDir, 'obsolete.md')));
-    assert.ok(result.removed.includes('.claude/rules/claude-stack/obsolete.md'));
+    assert.ok(result.removed.includes('.claude/rules/agent-standards/obsolete.md'));
   });
 
   it('reinstalls locally deleted files', async () => {
     const content = readFileSync(
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
 
     writeManifest(tmpDir, {
@@ -139,7 +139,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(content),
           source: 'laravel/core/testing.md',
         }
@@ -148,7 +148,7 @@ describe('updateNonInteractive', () => {
 
     const result = await updateNonInteractive(tmpDir);
     assert.ok(existsSync(join(rulesDir, 'testing.md')));
-    assert.ok(result.added.includes('.claude/rules/claude-stack/testing.md'));
+    assert.ok(result.added.includes('.claude/rules/agent-standards/testing.md'));
   });
 
   // ── Additional edge case tests ──
@@ -157,7 +157,7 @@ describe('updateNonInteractive', () => {
     const originalContent = '# Original content v1';
     const locallyEdited = '# Original content v1\n# User changes';
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), locallyEdited);
 
@@ -166,7 +166,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(originalContent),
           source: 'laravel/core/testing.md',
         }
@@ -174,7 +174,7 @@ describe('updateNonInteractive', () => {
     });
 
     const result = await updateNonInteractive(tmpDir);
-    assert.ok(result.conflictPaths.includes('.claude/rules/claude-stack/testing.md'));
+    assert.ok(result.conflictPaths.includes('.claude/rules/agent-standards/testing.md'));
     // File on disk should remain untouched (user's version preserved)
     const afterUpdate = readFileSync(join(rulesDir, 'testing.md'), 'utf8');
     assert.equal(afterUpdate, locallyEdited);
@@ -185,7 +185,7 @@ describe('updateNonInteractive', () => {
     const locallyEdited = '# Original content v1\n# User changes';
     const originalHash = hashContent(originalContent);
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), locallyEdited);
 
@@ -194,7 +194,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: originalHash,
           source: 'laravel/core/testing.md',
         }
@@ -204,7 +204,7 @@ describe('updateNonInteractive', () => {
     await updateNonInteractive(tmpDir);
     const manifest = readManifest(tmpDir);
     assert.equal(
-      manifest.files['.claude/rules/claude-stack/testing.md'].installed_hash,
+      manifest.files['.claude/rules/agent-standards/testing.md'].installed_hash,
       originalHash
     );
   });
@@ -214,7 +214,7 @@ describe('updateNonInteractive', () => {
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), testingContent);
 
@@ -223,7 +223,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(testingContent),
           source: 'laravel/core/testing.md',
         }
@@ -238,7 +238,7 @@ describe('updateNonInteractive', () => {
     }));
 
     const result = await updateNonInteractive(tmpDir);
-    assert.ok(result.added.includes('.claude/rules/claude-stack/filament-v4.md'));
+    assert.ok(result.added.includes('.claude/rules/agent-standards/filament-v4.md'));
     assert.ok(existsSync(join(rulesDir, 'filament-v4.md')));
   });
 
@@ -247,7 +247,7 @@ describe('updateNonInteractive', () => {
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), content);
 
@@ -256,7 +256,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(content),
           source: 'laravel/core/testing.md',
         }
@@ -279,7 +279,7 @@ describe('updateNonInteractive', () => {
       join(process.cwd(), 'stacks', 'laravel', 'core', 'services.md'), 'utf8'
     );
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
 
     writeFileSync(join(rulesDir, 'testing.md'), testingContent);
@@ -292,15 +292,15 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(testingContent),
           source: 'laravel/core/testing.md',
         },
-        '.claude/rules/claude-stack/services.md': {
+        '.claude/rules/agent-standards/services.md': {
           installed_hash: hashContent(servicesContent),
           source: 'laravel/core/services.md',
         },
-        '.claude/rules/claude-stack/obsolete.md': {
+        '.claude/rules/agent-standards/obsolete.md': {
           installed_hash: hashContent('# Obsolete'),
           source: 'laravel/core/obsolete.md',
         },
@@ -309,11 +309,11 @@ describe('updateNonInteractive', () => {
 
     const result = await updateNonInteractive(tmpDir);
 
-    assert.ok(result.skipped.includes('.claude/rules/claude-stack/testing.md'));
-    assert.ok(result.kept.includes('.claude/rules/claude-stack/services.md'));
-    assert.ok(result.removed.includes('.claude/rules/claude-stack/obsolete.md'));
-    assert.ok(result.added.includes('.claude/rules/claude-stack/database.md'));
-    assert.ok(result.added.includes('.claude/rules/claude-stack/code-quality.md'));
+    assert.ok(result.skipped.includes('.claude/rules/agent-standards/testing.md'));
+    assert.ok(result.kept.includes('.claude/rules/agent-standards/services.md'));
+    assert.ok(result.removed.includes('.claude/rules/agent-standards/obsolete.md'));
+    assert.ok(result.added.includes('.claude/rules/agent-standards/database.md'));
+    assert.ok(result.added.includes('.claude/rules/agent-standards/code-quality.md'));
   });
 
   it('handles empty manifest files map gracefully', async () => {
@@ -337,7 +337,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/gone.md': {
+        '.claude/rules/agent-standards/gone.md': {
           installed_hash: hashContent('# Gone'),
           source: 'laravel/core/gone.md',
         }
@@ -345,7 +345,7 @@ describe('updateNonInteractive', () => {
     });
 
     const result = await updateNonInteractive(tmpDir);
-    assert.ok(result.removed.includes('.claude/rules/claude-stack/gone.md'));
+    assert.ok(result.removed.includes('.claude/rules/agent-standards/gone.md'));
   });
 
   it('manifest includes newly added package files after update', async () => {
@@ -360,7 +360,7 @@ describe('updateNonInteractive', () => {
       join(process.cwd(), 'stacks', 'laravel', 'core', 'testing.md'), 'utf8'
     );
 
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), testingContent);
 
@@ -369,7 +369,7 @@ describe('updateNonInteractive', () => {
       stack: 'laravel',
       packages: [],
       files: {
-        '.claude/rules/claude-stack/testing.md': {
+        '.claude/rules/agent-standards/testing.md': {
           installed_hash: hashContent(testingContent),
           source: 'laravel/core/testing.md',
         }
@@ -379,8 +379,8 @@ describe('updateNonInteractive', () => {
     await updateNonInteractive(tmpDir);
     const manifest = readManifest(tmpDir);
 
-    assert.ok(manifest.files['.claude/rules/claude-stack/mongodb.md']);
-    assert.ok(manifest.files['.claude/rules/claude-stack/mongodb.md'].installed_hash);
+    assert.ok(manifest.files['.claude/rules/agent-standards/mongodb.md']);
+    assert.ok(manifest.files['.claude/rules/agent-standards/mongodb.md'].installed_hash);
     assert.deepEqual(manifest.packages, ['mongodb']);
   });
 
@@ -389,12 +389,12 @@ describe('updateNonInteractive', () => {
   it('returns conflict objects with content when both changed', async () => {
     const originalContent = '# Original content v1';
     const locallyEdited = '# Original content v1\n# User changes';
-    const rulesDir = join(tmpDir, '.claude', 'rules', 'claude-stack');
+    const rulesDir = join(tmpDir, '.claude', 'rules', 'agent-standards');
     mkdirSync(rulesDir, { recursive: true });
     writeFileSync(join(rulesDir, 'testing.md'), locallyEdited);
     writeManifest(tmpDir, {
       version: '0.1.0', stack: 'laravel', packages: [],
-      files: { '.claude/rules/claude-stack/testing.md': { installed_hash: hashContent(originalContent), source: 'laravel/core/testing.md' } }
+      files: { '.claude/rules/agent-standards/testing.md': { installed_hash: hashContent(originalContent), source: 'laravel/core/testing.md' } }
     });
 
     const result = await updateNonInteractive(tmpDir);
