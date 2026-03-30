@@ -67,7 +67,7 @@ describe('getStatus', () => {
   it('detects locally modified rules', () => {
     initNonInteractive(tmpDir);
 
-    const rulePath = join(tmpDir, '.claude', 'rules', 'claude-stack', 'testing.md');
+    const rulePath = join(tmpDir, '.claude', 'rules', 'agent-standards', 'testing.md');
     writeFileSync(rulePath, readFileSync(rulePath, 'utf8') + '\n# edited');
 
     const status = getStatus(tmpDir);
@@ -78,7 +78,7 @@ describe('getStatus', () => {
   it('detects deleted rules', () => {
     initNonInteractive(tmpDir);
 
-    unlinkSync(join(tmpDir, '.claude', 'rules', 'claude-stack', 'testing.md'));
+    unlinkSync(join(tmpDir, '.claude', 'rules', 'agent-standards', 'testing.md'));
 
     const status = getStatus(tmpDir);
     const testingRule = status.rules.find(r => r.file === 'testing.md');
