@@ -18,14 +18,14 @@ if (command === 'init') {
   await uninstall(process.cwd());
 } else {
   console.log(`
-  📦 Claude Stack — Optimized AI instructions for your project.
+  📦 Agent Standards — Operational quality standards for AI agents.
 
   Usage:
-    npx @henryavila/claude-stack init        Set up AI instructions + stack rules
-    npx @henryavila/claude-stack update      Update rules with conflict handling
-    npx @henryavila/claude-stack status      Show installation status
-    npx @henryavila/claude-stack uninstall   Remove claude-stack from project
+    npx @henryavila/agent-standards init        Set up AI instructions + stack rules
+    npx @henryavila/agent-standards update      Update rules with conflict handling
+    npx @henryavila/agent-standards status      Show installation status
+    npx @henryavila/agent-standards uninstall   Remove Agent Standards from project
 
-  Docs: https://github.com/henryavila/claude-stack
+  Docs: https://github.com/henryavila/agent-standards
   `);
 }

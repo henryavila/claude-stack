@@ -46,12 +46,12 @@ export async function status(projectDir) {
   const s = getStatus(projectDir);
 
   if (!s.installed) {
-    console.log('\n  📦 Claude Stack — not installed.\n');
-    console.log('  Run: npx @henryavila/claude-stack init\n');
+    console.log('\n  📦 Agent Standards — not installed.\n');
+    console.log('  Run: npx @henryavila/agent-standards init\n');
     return;
   }
 
-  console.log(`\n  📦 Claude Stack v${s.version} — ${s.stack || 'no stack'} (${s.packages.join(', ') || 'no packages'})\n`);
+  console.log(`\n  📦 Agent Standards v${s.version} — ${s.stack || 'no stack'} (${s.packages.join(', ') || 'no packages'})\n`);
 
   const icons = { unchanged: '·', modified: '≡', deleted: '✗' };
   const labels = { unchanged: 'unchanged', modified: 'locally modified', deleted: 'deleted from disk' };

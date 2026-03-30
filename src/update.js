@@ -46,7 +46,7 @@ function buildNewFilesMap(stack, packages) {
 export async function updateNonInteractive(projectDir, options = {}) {
   const manifest = readManifest(projectDir);
   if (!manifest) {
-    throw new Error('No manifest found. Run `claude-stack init` first.');
+    throw new Error('No manifest found. Run `agent-standards init` first.');
   }
 
   const stack = detectStack(projectDir);
@@ -176,7 +176,7 @@ function rebuildManifest(projectDir, stack, packages, oldManifest, conflicts = [
  * Interactive update.
  */
 export async function update(projectDir) {
-  console.log('\n  📦 Claude Stack — Updating rules...\n');
+  console.log('\n  📦 Agent Standards — Updating rules...\n');
 
   try {
     const result = await updateNonInteractive(projectDir, {

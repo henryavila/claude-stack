@@ -23,7 +23,11 @@ describe('CLI e2e', () => {
 
   it('help shows all 4 commands', () => {
     const output = execSync(`node ${CLI}`, { encoding: 'utf8' });
-    assert.ok(output.includes('Claude Stack'));
+    assert.ok(output.includes('Agent Standards'));
+    assert.ok(output.includes('npx @henryavila/agent-standards init'));
+    assert.ok(output.includes('npx @henryavila/agent-standards update'));
+    assert.ok(output.includes('npx @henryavila/agent-standards status'));
+    assert.ok(output.includes('npx @henryavila/agent-standards uninstall'));
     assert.ok(output.includes('init'));
     assert.ok(output.includes('update'));
     assert.ok(output.includes('status'));
@@ -53,6 +57,8 @@ describe('CLI e2e', () => {
     const freshDir = mkdtempSync(join(tmpdir(), 'cs-e2e-fresh-'));
     try {
       const output = execSync(`node ${CLI} status`, { cwd: freshDir, encoding: 'utf8' });
+      assert.ok(output.includes('Agent Standards'));
+      assert.ok(output.includes('npx @henryavila/agent-standards init'));
       assert.ok(output.includes('not installed'));
     } finally {
       rmSync(freshDir, { recursive: true, force: true });

@@ -35,7 +35,7 @@ function isEmptyObject(value) {
 export function uninstallNonInteractive(projectDir) {
   const manifest = readManifest(projectDir);
   if (!manifest) {
-    throw new Error('Claude Stack is not installed in this project.');
+    throw new Error('Agent Standards is not installed in this project.');
   }
 
   const removedFiles = [];
@@ -107,7 +107,7 @@ export function uninstallNonInteractive(projectDir) {
 }
 
 export async function uninstall(projectDir) {
-  console.log('\n  📦 Claude Stack — Uninstalling...\n');
+  console.log('\n  📦 Agent Standards — Uninstalling...\n');
 
   try {
     const result = uninstallNonInteractive(projectDir);
@@ -119,7 +119,7 @@ export async function uninstall(projectDir) {
     console.log('\n  ✓ Settings cleaned (deny rules removed)');
     console.log('  ✓ Manifest removed');
     console.log('\n  Preserved: CLAUDE.md, guidelines.md, .ai/memory/');
-    console.log(`\n  📦 Claude Stack uninstalled.\n`);
+    console.log('\n  📦 Agent Standards uninstalled.\n');
   } catch (e) {
     console.error(`  Error: ${e.message}\n`);
   }

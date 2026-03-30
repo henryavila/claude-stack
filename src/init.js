@@ -132,12 +132,12 @@ function getPackageVersion() {
  * Interactive init — entry point from CLI.
  */
 export async function init(projectDir) {
-  console.log('\n  📦 Claude Stack — Optimized AI instructions for your project.\n');
+  console.log('\n  📦 Agent Standards — Operational quality standards for AI agents.\n');
 
   const result = initNonInteractive(projectDir);
 
   if (result.alreadyInstalled) {
-    console.log('  Já instalado. Use `claude-stack update` para atualizar.\n');
+    console.log('  Já instalado. Use `agent-standards update` para atualizar.\n');
     return;
   }
 
