@@ -2,6 +2,22 @@
 
 Operational quality standards for AI agents, with a universal core and optional stack modules.
 
+## Brand Asset
+
+The primary hero image should be generated from `prompts/branding/agent-standards-viz-image.md` and saved as `assets/agent-standards-hero.png`.
+
+When the asset exists, use this snippet in the README to render it consistently on GitHub and npm:
+
+```md
+<p align="center">
+  <img
+    src="https://raw.githubusercontent.com/henryavila/agent-standards/main/assets/agent-standards-hero.png"
+    alt="Agent Standards hero"
+    width="100%"
+  />
+</p>
+```
+
 Today:
 
 - every project gets the universal `core`
